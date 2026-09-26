@@ -93,9 +93,10 @@ cd Lametna
 bash tool/bootstrap.sh
 ```
 
-`tool/bootstrap.sh` ينفّذ `flutter create --platforms=android,ios .` (لا يمس `lib/` إطلاقًا)
-ثم ينسخ فوقها ملفات `tool/android_overrides/`: المانيفست بلا صلاحيات وسائط، اسم التطبيق «لمّتنا»،
-إعدادات التوقيع و R8، وشاشة الإقلاع.
+`tool/bootstrap.sh` ينفّذ `flutter create --platforms=android,ios .` لتوليد مجلدات المنصات
+إن كانت ناقصة (يحفظ `pubspec.yaml` وأخواته ويعيدها، ولا يمس `lib/` إطلاقًا)، ثم ينسخ فوق
+`android/` ملفات `tool/android_overrides/`: المانيفست بلا صلاحيات وسائط، اسم التطبيق «لمّتنا»،
+إعدادات التوقيع و R8، وشاشة الإقلاع. آمن للتشغيل أكثر من مرة.
 
 ## إعداد Supabase
 
