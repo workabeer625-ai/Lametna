@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  flutter:
+    name: تحليل واختبار
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.x'
+          channel: stable
+          cache: true
+
+      # مجلدات المنصات مُولَّدة، لذا ننشئها قبل أي شيء
+      - name: توليد مجلدات المنصات
+        run: |
+          flutter create --platforms=android --org app.lametna --project-name lametna --overwrite .
+          cp -R tool/android_overrides/. android/
+
+      - name: تثبيت الحزم
+        run: flutter pub get
+
+      - name: تنسيق الكود
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
+
+      - name: التحليل الساكن
+        run: flutter analyze
+
+      - name: الاختبارات
+        run: flutter test --coverage
+
+      - name: بناء APK للتأكد من سلامة البناء
+        run: |
+          flutter build apk --debug \
+            --dart-define=SUPABASE_URL=https://example.supabase.co \
+            --dart-define=SUPABASE_ANON_KEY=ci_placeholder_key_not_a_real_secret
+
+  sql:
+    name: فحص صياغة SQL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: بدء Supabase محليًا وتطبيق الترحيلات والبذور
+        run: supabase db start || supabase start
+      - name: اختبارات RLS وقواعد اللعب
+        run: |
+          psql "$(supabase status -o env | grep DB_URL | cut -d= -f2- | tr -d '"')" \
+               -v ON_ERROR_STOP=1 -f supabase/tests/rls_and_rules_test.sql
