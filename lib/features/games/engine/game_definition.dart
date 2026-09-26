@@ -64,6 +64,17 @@ class GameRegistry {
     GameKeys.whoAmI: WhoAmIGame(),
     GameKeys.liar: LiarGame(),
     GameKeys.groupStory: GroupStoryGame(),
+    // --- توسعة الكتالوج (ترحيل 0012) ---
+    GameKeys.capitals: CapitalsGame(),
+    GameKeys.flags: FlagsGame(),
+    GameKeys.riddles: RiddlesGame(),
+    GameKeys.islamic: IslamicGame(),
+    GameKeys.sports: SportsGame(),
+    GameKeys.history: HistoryGame(),
+    GameKeys.emojiPuzzle: EmojiPuzzleGame(),
+    GameKeys.fastMath: FastMathGame(),
+    GameKeys.secretJob: SecretJobGame(),
+    GameKeys.bestAnswer: BestAnswerGame(),
   };
 
   static GameDefinition? of(String key) => definitions[key];

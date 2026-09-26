@@ -15,10 +15,13 @@ import '../shared/game_scaffold.dart';
 /// الكذاب بيننا — الكلمة السرية وتوزيعها يتمّان على الخادم.
 /// العميل لا يعرف من هو الكذاب إطلاقًا حتى تُحسم الجولة.
 class LiarGame extends GameDefinition {
-  const LiarGame();
+  const LiarGame({this.gameKey = GameKeys.liar});
+
+  /// يسمح لألعاب أخرى بإعادة استخدام المحرك نفسه (مثل «المهنة السرية»).
+  final String gameKey;
 
   @override
-  String get key => GameKeys.liar;
+  String get key => gameKey;
 
   @override
   Widget buildRound(BuildContext context, GameRoundContext ctx) => _LiarRoundView(ctx: ctx);
@@ -65,6 +68,11 @@ class LiarGame extends GameDefinition {
       ),
     );
   }
+}
+
+/// المهنة السرية — نفس محرك «الكذاب» بمحتوى مختلف (مهن بدل كلمات).
+class SecretJobGame extends LiarGame {
+  const SecretJobGame() : super(gameKey: GameKeys.secretJob);
 }
 
 class _LiarRoundView extends StatefulWidget {

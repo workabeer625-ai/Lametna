@@ -11,10 +11,17 @@ import '../shared/game_scaffold.dart';
 
 /// القصة الجماعية — كتابة جملة ثم تصويت على أفضل جملة، مع فلترة المحتوى.
 class GroupStoryGame extends GameDefinition {
-  const GroupStoryGame();
+  const GroupStoryGame({
+    this.gameKey = GameKeys.groupStory,
+    this.titleKey = 'group_story',
+  });
+
+  /// يسمح لألعاب أخرى بإعادة استخدام المحرك نفسه (مثل «أفضل جواب»).
+  final String gameKey;
+  final String titleKey;
 
   @override
-  String get key => GameKeys.groupStory;
+  String get key => gameKey;
 
   @override
   Widget buildRound(BuildContext context, GameRoundContext ctx) => _StoryRoundView(ctx: ctx);
@@ -29,7 +36,7 @@ class GroupStoryGame extends GameDefinition {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: <Widget>[
-        Text(l10n.t('group_story'),
+        Text(l10n.t(titleKey),
             style: Theme.of(context).textTheme.titleLarge,
             textAlign: TextAlign.center),
         const SizedBox(height: 12),
@@ -49,6 +56,12 @@ class GroupStoryGame extends GameDefinition {
       ],
     );
   }
+}
+
+/// أفضل جواب — نفس محرك «القصة الجماعية»: كتابة ثم تصويت.
+class BestAnswerGame extends GroupStoryGame {
+  const BestAnswerGame()
+      : super(gameKey: GameKeys.bestAnswer, titleKey: 'best_answer');
 }
 
 class _StoryRoundView extends StatefulWidget {

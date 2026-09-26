@@ -82,6 +82,89 @@ class WhoAmIGame extends _SingleAnswerGame {
         );
 }
 
+// --- ألعاب الاختيار من متعدد (ترحيل 0012) ---
+
+class CapitalsGame extends _SingleAnswerGame {
+  const CapitalsGame()
+      : super(
+          gameKey: GameKeys.capitals,
+          titleKey: 'capitals',
+          hintKey: 'capitals_hint',
+          choicesFromPrompt: true,
+        );
+}
+
+class FlagsGame extends _SingleAnswerGame {
+  const FlagsGame()
+      : super(
+          gameKey: GameKeys.flags,
+          titleKey: 'flags',
+          hintKey: 'flags_hint',
+          choicesFromPrompt: true,
+        );
+}
+
+class IslamicGame extends _SingleAnswerGame {
+  const IslamicGame()
+      : super(
+          gameKey: GameKeys.islamic,
+          titleKey: 'islamic',
+          hintKey: 'islamic_hint',
+          choicesFromPrompt: true,
+        );
+}
+
+class SportsGame extends _SingleAnswerGame {
+  const SportsGame()
+      : super(
+          gameKey: GameKeys.sports,
+          titleKey: 'sports',
+          hintKey: 'sports_hint',
+          choicesFromPrompt: true,
+        );
+}
+
+class HistoryGame extends _SingleAnswerGame {
+  const HistoryGame()
+      : super(
+          gameKey: GameKeys.history,
+          titleKey: 'history',
+          hintKey: 'history_hint',
+          choicesFromPrompt: true,
+        );
+}
+
+// --- ألعاب الإجابة النصية (ترحيل 0012) ---
+
+class RiddlesGame extends _SingleAnswerGame {
+  const RiddlesGame()
+      : super(
+          gameKey: GameKeys.riddles,
+          titleKey: 'riddles',
+          hintKey: 'riddles_hint',
+          progressiveHints: true,
+        );
+}
+
+class EmojiPuzzleGame extends _SingleAnswerGame {
+  const EmojiPuzzleGame()
+      : super(
+          gameKey: GameKeys.emojiPuzzle,
+          titleKey: 'emoji_puzzle',
+          hintKey: 'emoji_puzzle_hint',
+          progressiveHints: true,
+        );
+}
+
+class FastMathGame extends _SingleAnswerGame {
+  const FastMathGame()
+      : super(
+          gameKey: GameKeys.fastMath,
+          titleKey: 'fast_math',
+          hintKey: 'fast_math_hint',
+        );
+}
+
 // ---------------------------------------------------------------------------
 
 class _SingleAnswerRoundView extends StatefulWidget {
