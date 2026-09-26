@@ -20,7 +20,7 @@ insert into public.games (key, name_ar, name_en, description_ar, description_en,
   ('wink','الغمزة','Wink Murder',
    'غمّاز واحد بينكم يغمز سرًا فيُخرج لاعبًا كل جولة، والباقون يكشفونه بالتصويت.',
    'One secret winker eliminates a player each round — the rest must unmask them.',
-   '😉', '{arabic,family,competitive}', 4, 16, 40, 90, 19),
+   '😉', '{arabic,family,competitive}', 4, 16, 12, 90, 19),
 
   ('spy','الجاسوس','The Spy',
    'الجميع يعرفون المكان إلا الجاسوس. تحدّثوا عنه دون كشفه، ثم صوّتوا.',
