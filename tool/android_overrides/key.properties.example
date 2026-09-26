@@ -1,0 +1,16 @@
+# ============================================================
+#  انسخ هذا الملف إلى android/key.properties (وهو مستثنى من Git)
+#  Copy to android/key.properties — NEVER commit the real one.
+# ============================================================
+#
+# إنشاء keystore (مرة واحدة فقط، واحتفظ به في مكان آمن للأبد):
+#
+#   keytool -genkey -v \
+#     -keystore ~/lametna-upload-keystore.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 \
+#     -alias lametna
+#
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=lametna
+storeFile=/absolute/path/to/lametna-upload-keystore.jks
