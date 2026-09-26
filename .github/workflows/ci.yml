@@ -21,7 +21,10 @@ jobs:
       # مجلدات المنصات مُولَّدة، لذا ننشئها قبل أي شيء
       - name: توليد مجلدات المنصات
         run: |
-          flutter create --platforms=android --org app.lametna --project-name lametna --overwrite .
+          cp pubspec.yaml /tmp/pubspec.yaml
+          flutter create --platforms=android --org app.lametna --project-name lametna .
+          cp /tmp/pubspec.yaml pubspec.yaml
+          rm -f test/widget_test.dart
           cp -R tool/android_overrides/. android/
 
       - name: تثبيت الحزم

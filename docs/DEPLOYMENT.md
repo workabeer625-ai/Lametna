@@ -28,8 +28,9 @@ bash tool/bootstrap.sh
 السكربت ينفّذ `flutter create --platforms=android,ios .` ثم ينسخ `tool/android_overrides/`
 فوق `android/` ويشغّل `flutter pub get` وتوليد الصور الرمزية.
 
-> مجلدا `android/` و `ios/` مُولَّدان عمدًا ولا يُحفظان في Git: هذا يتجنّب تعارضات نسخ Gradle،
-> وكل تخصيصاتنا محفوظة في `tool/android_overrides/`.
+> مجلدات المنصات مُتتبَّعة في Git، لكن تخصيصات «لمّتنا» تبقى مصدرها `tool/android_overrides/`:
+> عدّل هناك ثم أعد تشغيل `bash tool/bootstrap.sh` بدل التعديل المباشر في `android/`،
+> حتى لا تضيع التخصيصات عند إعادة توليد المجلد.
 
 ---
 

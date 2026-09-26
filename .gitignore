@@ -11,13 +11,8 @@ build/
 .vscode/
 coverage/
 
-# مجلدات المنصات مُولَّدة بـ tool/bootstrap.sh (التخصيصات في tool/android_overrides/)
-/android/
-/ios/
-/linux/
-/macos/
-/windows/
-/web/
+# ملاحظة: مجلدات المنصات (android/ ios/ …) مُتتبَّعة في Git.
+# استخدم tool/bootstrap.sh لتوليدها أول مرة وتطبيق تخصيصات لمّتنا عليها.
 
 # Android
 android/.gradle/

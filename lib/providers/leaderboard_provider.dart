@@ -33,7 +33,7 @@ class LeaderboardQuery {
 final StateProvider<LeaderboardQuery> leaderboardQueryProvider =
     StateProvider<LeaderboardQuery>((Ref ref) => const LeaderboardQuery());
 
-final FutureProvider<List<LeaderboardEntry>> leaderboardProvider =
+final AutoDisposeFutureProvider<List<LeaderboardEntry>> leaderboardProvider =
     FutureProvider.autoDispose<List<LeaderboardEntry>>((Ref ref) {
   final LeaderboardQuery q = ref.watch(leaderboardQueryProvider);
   return ref.watch(supabaseServiceProvider).fetchLeaderboard(

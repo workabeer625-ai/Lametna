@@ -53,17 +53,22 @@ class RoomPlayer {
   bool get isDisconnected => state == PlayerState.disconnected;
 
   factory RoomPlayer.fromMap(Map<String, dynamic> map) {
-    final Map<String, dynamic>? p = map['profiles'] is Map
+    // الصف قد يأتي مع الملف الشخصي مُضمَّنًا (profiles) أو مسطّحًا.
+    final Map<String, dynamic> p = map['profiles'] is Map<dynamic, dynamic>
         ? Map<String, dynamic>.from(map['profiles'] as Map<dynamic, dynamic>)
-        : null;
+        : <String, dynamic>{};
+
+    final bool showCountry = (p['show_country'] ?? map['show_country']) == true;
+    final Object? country = showCountry
+        ? (p['country_code'] ?? map['country_code'])
+        : map['country_code'];
+
     return RoomPlayer(
       roomId: (map['room_id'] ?? '') as String,
       userId: (map['user_id'] ?? '') as String,
-      nickname: (p?['nickname'] ?? map['nickname'] ?? '—') as String,
-      avatarKey: (p?['avatar_key'] ?? map['avatar_key']) as String?,
-      countryCode: (p?['show_country'] == true
-          ? p?['country_code']
-          : map['country_code']) as String?,
+      nickname: (p['nickname'] ?? map['nickname'] ?? '—') as String,
+      avatarKey: (p['avatar_key'] ?? map['avatar_key']) as String?,
+      countryCode: country as String?,
       state: playerStateFrom(map['state'] as String?),
       isReady: (map['is_ready'] ?? false) as bool,
       isSpectator: (map['is_spectator'] ?? false) as bool,
