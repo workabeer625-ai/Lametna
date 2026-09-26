@@ -19,10 +19,13 @@ import '../shared/game_scaffold.dart';
 ///  • الميت لا يصوّت ولا ينفّذ أفعالًا ولا يكتب في الدردشة العامة.
 ///  • التصويت والقتل والفوز تُحسم في `resolve_round`.
 class MafiaGame extends GameDefinition {
-  const MafiaGame();
+  const MafiaGame({this.gameKey = GameKeys.mafia});
+
+  /// يسمح لـ«الغمزة» بإعادة استخدام المحرك نفسه بدور واحد فقط.
+  final String gameKey;
 
   @override
-  String get key => GameKeys.mafia;
+  String get key => gameKey;
 
   @override
   bool get hasSecretRoles => true;
@@ -33,6 +36,11 @@ class MafiaGame extends GameDefinition {
   @override
   Widget? buildRoundResult(BuildContext context, GameRoundContext ctx) =>
       _MafiaResultView(ctx: ctx);
+}
+
+/// الغمزة — مافيا مبسّطة: غمّاز واحد، بلا طبيب ولا محقق.
+class WinkGame extends MafiaGame {
+  const WinkGame() : super(gameKey: GameKeys.wink);
 }
 
 class _MafiaRoundView extends StatelessWidget {

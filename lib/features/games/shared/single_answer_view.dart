@@ -156,6 +156,26 @@ class EmojiPuzzleGame extends _SingleAnswerGame {
         );
 }
 
+class NeverHaveIGame extends _SingleAnswerGame {
+  const NeverHaveIGame()
+      : super(
+          gameKey: GameKeys.neverHaveI,
+          titleKey: 'never_have_i',
+          hintKey: 'never_have_i_hint',
+          choicesFromPrompt: true,
+        );
+}
+
+class WouldYouRatherGame extends _SingleAnswerGame {
+  const WouldYouRatherGame()
+      : super(
+          gameKey: GameKeys.wouldYouRather,
+          titleKey: 'would_you_rather',
+          hintKey: 'would_you_rather_hint',
+          choicesFromPrompt: true,
+        );
+}
+
 class FastMathGame extends _SingleAnswerGame {
   const FastMathGame()
       : super(

@@ -75,6 +75,11 @@ class SecretJobGame extends LiarGame {
   const SecretJobGame() : super(gameKey: GameKeys.secretJob);
 }
 
+/// الجاسوس — نفس المحرك: الجميع يعرفون المكان إلا الجاسوس (كلمته فارغة).
+class SpyGame extends LiarGame {
+  const SpyGame() : super(gameKey: GameKeys.spy);
+}
+
 class _LiarRoundView extends StatefulWidget {
   const _LiarRoundView({required this.ctx});
   final GameRoundContext ctx;
@@ -231,9 +236,12 @@ class _MyWord extends ConsumerWidget {
           return const SizedBox(
               height: 32, width: 32, child: CircularProgressIndicator(strokeWidth: 2));
         }
-        final String word = snapshot.data ?? '؟؟؟';
+        final String word = snapshot.data ?? '';
+        // في «الجاسوس» تكون كلمة الجاسوس فارغة — نخبره صراحةً بدوره.
+        final String shown =
+            word.isEmpty ? context.l10n.t('you_are_the_spy') : word;
         return Text(
-          word.isEmpty ? '؟؟؟' : word,
+          shown,
           style: Theme.of(context)
               .textTheme
               .headlineSmall
