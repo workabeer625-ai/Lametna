@@ -24,15 +24,15 @@ class ChatMessage {
   bool isMine(String? uid) => userId != null && userId == uid;
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
-    final Map<String, dynamic>? p = map['profiles'] is Map
+    final Map<String, dynamic> p = map['profiles'] is Map<dynamic, dynamic>
         ? Map<String, dynamic>.from(map['profiles'] as Map<dynamic, dynamic>)
-        : null;
+        : <String, dynamic>{};
     return ChatMessage(
       id: (map['id'] as num).toInt(),
       roomId: (map['room_id'] ?? '') as String,
       userId: map['user_id'] as String?,
-      nickname: (p?['nickname'] ?? map['nickname']) as String?,
-      avatarKey: (p?['avatar_key'] ?? map['avatar_key']) as String?,
+      nickname: (p['nickname'] ?? map['nickname']) as String?,
+      avatarKey: (p['avatar_key'] ?? map['avatar_key']) as String?,
       body: (map['body'] ?? '') as String,
       isSystem: (map['is_system'] ?? false) as bool,
       channel: (map['channel'] ?? 'public') as String,
