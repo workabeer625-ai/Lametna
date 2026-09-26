@@ -44,8 +44,27 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^4.0.0
   mocktail: ^1.0.4
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/avatars/
+
+# أيقونة التطبيق (شعار لمّتنا — فنجان القهوة واللمّة)
+# للتوليد:  dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "tool/branding/app_icon.png"
+  android: "ic_launcher"
+  adaptive_icon_background: "#F7F0E5"
+  adaptive_icon_foreground: "tool/branding/app_icon_foreground.png"
+  min_sdk_android: 21
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    background_color: "#F7F0E5"
+    theme_color: "#6F4E37"
+  windows:
+    generate: true
+    icon_size: 256
