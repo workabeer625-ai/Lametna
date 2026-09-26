@@ -1,0 +1,52 @@
+# لمّتنا / Lametna — Supabase CLI project config
+project_id = "lametna"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 200
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# Replace with your production deep link / admin URL before going live.
+site_url = "io.lametna.app://login-callback"
+additional_redirect_urls = ["io.lametna.app://login-callback"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false   # free tier: the built-in SMTP is rate limited
+double_confirm_changes = true
+
+[auth.sms]
+enable_signup = false          # phone auth needs a paid SMS provider — disabled on purpose
+
+[auth.external.apple]
+enabled = false
+
+[realtime]
+enabled = true
+
+[storage]
+enabled = false                # no uploads: avatars ship inside the app
+
+[functions.cleanup-rooms]
+verify_jwt = false             # called by cron with a shared secret header
+
+[functions.tick-rounds]
+verify_jwt = false             # called by cron with a shared secret header
+
+[functions.resolve-round]
+verify_jwt = true              # called by players; membership enforced by RLS

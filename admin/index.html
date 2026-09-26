@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>لوحة تحكم لمّتنا</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>☕</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<div id="app" class="app">
+  <!-- ============ شاشة الدخول ============ -->
+  <section id="view-login" class="center-screen">
+    <form id="login-form" class="card login-card" autocomplete="on">
+      <div class="brand">
+        <span class="brand-mark">☕</span>
+        <h1>لمّتنا</h1>
+        <p class="muted">لوحة تحكم المشرفين</p>
+      </div>
+
+      <div id="config-warning" class="banner warn hidden">
+        لم يتم ضبط الاتصال. عدّل <code>config.js</code> وضع رابط Supabase والمفتاح العام (anon).
+      </div>
+
+      <label class="field">
+        <span>البريد الإلكتروني</span>
+        <input id="login-email" type="email" required autocomplete="username" dir="ltr" />
+      </label>
+      <label class="field">
+        <span>كلمة المرور</span>
+        <input id="login-password" type="password" required autocomplete="current-password" dir="ltr" />
+      </label>
+
+      <button class="btn primary" type="submit" id="login-btn">دخول</button>
+      <p id="login-error" class="error hidden"></p>
+      <p class="muted tiny">
+        الدخول مقصور على الحسابات التي دورها <code>admin</code> أو <code>moderator</code>.
+        قاعدة البيانات هي من تفرض ذلك، لا هذه الصفحة.
+      </p>
+    </form>
+  </section>
+
+  <!-- ============ اللوحة ============ -->
+  <section id="view-dashboard" class="hidden">
+    <header class="topbar">
+      <div class="topbar-start">
+        <span class="brand-mark small">☕</span>
+        <strong>لمّتنا</strong>
+        <span class="chip" id="role-chip">—</span>
+      </div>
+      <div class="topbar-end">
+        <span class="muted tiny" id="who">—</span>
+        <button class="btn ghost" id="refresh-btn" title="تحديث">⟳</button>
+        <button class="btn ghost" id="logout-btn">خروج</button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-tab="overview">نظرة عامة</button>
+      <button class="tab" data-tab="reports">البلاغات</button>
+      <button class="tab" data-tab="rooms">الغرف</button>
+      <button class="tab" data-tab="players">اللاعبون</button>
+      <button class="tab" data-tab="bans">الحظر</button>
+      <button class="tab" data-tab="audit">سجل العمليات</button>
+    </nav>
+
+    <main class="content">
+      <!-- نظرة عامة -->
+      <div class="panel active" id="tab-overview">
+        <div class="stat-grid" id="stat-grid"></div>
+        <div class="card">
+          <h2>حدود الخطة المجانية</h2>
+          <div id="quota-list" class="quota-list"></div>
+          <p class="muted tiny">
+            القيم تقديرية ومقارنة بحدود Supabase المجانية المعلنة في <code>config.js</code>.
+            راجع لوحة Supabase للأرقام الرسمية.
+          </p>
+        </div>
+      </div>
+
+      <!-- البلاغات -->
+      <div class="panel" id="tab-reports">
+        <div class="toolbar">
+          <select id="report-status">
+            <option value="open">جديدة</option>
+            <option value="reviewing">قيد المراجعة</option>
+            <option value="resolved">تمت المعالجة</option>
+            <option value="rejected">مرفوضة</option>
+            <option value="">الكل</option>
+          </select>
+        </div>
+        <div id="reports-list" class="list"></div>
+      </div>
+
+      <!-- الغرف -->
+      <div class="panel" id="tab-rooms">
+        <div class="toolbar">
+          <input id="room-search" class="search" placeholder="بحث برمز الغرفة أو الاسم…" />
+          <label class="check"><input type="checkbox" id="rooms-open-only" checked /> المفتوحة فقط</label>
+        </div>
+        <div id="rooms-list" class="list"></div>
+      </div>
+
+      <!-- اللاعبون -->
+      <div class="panel" id="tab-players">
+        <div class="toolbar">
+          <input id="player-search" class="search" placeholder="بحث بالاسم المستعار…" />
+        </div>
+        <div id="players-list" class="list"></div>
+      </div>
+
+      <!-- الحظر -->
+      <div class="panel" id="tab-bans">
+        <div id="bans-list" class="list"></div>
+      </div>
+
+      <!-- سجل العمليات -->
+      <div class="panel" id="tab-audit">
+        <div id="audit-list" class="list"></div>
+      </div>
+    </main>
+
+    <div id="toast" class="toast hidden"></div>
+  </section>
+</div>
+
+<script src="./config.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
