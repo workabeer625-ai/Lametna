@@ -15,10 +15,13 @@ import '../shared/game_scaffold.dart';
 /// الكذاب بيننا — الكلمة السرية وتوزيعها يتمّان على الخادم.
 /// العميل لا يعرف من هو الكذاب إطلاقًا حتى تُحسم الجولة.
 class LiarGame extends GameDefinition {
-  const LiarGame();
+  const LiarGame({this.gameKey = GameKeys.liar});
+
+  /// يسمح لألعاب أخرى بإعادة استخدام المحرك نفسه (مثل «المهنة السرية»).
+  final String gameKey;
 
   @override
-  String get key => GameKeys.liar;
+  String get key => gameKey;
 
   @override
   Widget buildRound(BuildContext context, GameRoundContext ctx) => _LiarRoundView(ctx: ctx);
@@ -65,6 +68,16 @@ class LiarGame extends GameDefinition {
       ),
     );
   }
+}
+
+/// المهنة السرية — نفس محرك «الكذاب» بمحتوى مختلف (مهن بدل كلمات).
+class SecretJobGame extends LiarGame {
+  const SecretJobGame() : super(gameKey: GameKeys.secretJob);
+}
+
+/// الجاسوس — نفس المحرك: الجميع يعرفون المكان إلا الجاسوس (كلمته فارغة).
+class SpyGame extends LiarGame {
+  const SpyGame() : super(gameKey: GameKeys.spy);
 }
 
 class _LiarRoundView extends StatefulWidget {
@@ -223,9 +236,12 @@ class _MyWord extends ConsumerWidget {
           return const SizedBox(
               height: 32, width: 32, child: CircularProgressIndicator(strokeWidth: 2));
         }
-        final String word = snapshot.data ?? '؟؟؟';
+        final String word = snapshot.data ?? '';
+        // في «الجاسوس» تكون كلمة الجاسوس فارغة — نخبره صراحةً بدوره.
+        final String shown =
+            word.isEmpty ? context.l10n.t('you_are_the_spy') : word;
         return Text(
-          word.isEmpty ? '؟؟؟' : word,
+          shown,
           style: Theme.of(context)
               .textTheme
               .headlineSmall

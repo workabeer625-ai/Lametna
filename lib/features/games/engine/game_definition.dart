@@ -7,6 +7,7 @@ import '../group_story/group_story_view.dart';
 import '../liar/liar_view.dart';
 import '../mafia/mafia_view.dart';
 import '../shared/single_answer_view.dart';
+import '../social/social_views.dart';
 
 /// واجهة تعريف اللعبة — نقطة التوسعة لإضافة ألعاب جديدة مستقبلًا.
 ///
@@ -64,6 +65,25 @@ class GameRegistry {
     GameKeys.whoAmI: WhoAmIGame(),
     GameKeys.liar: LiarGame(),
     GameKeys.groupStory: GroupStoryGame(),
+    // --- توسعة الكتالوج (ترحيل 0012) ---
+    GameKeys.capitals: CapitalsGame(),
+    GameKeys.flags: FlagsGame(),
+    GameKeys.riddles: RiddlesGame(),
+    GameKeys.islamic: IslamicGame(),
+    GameKeys.sports: SportsGame(),
+    GameKeys.history: HistoryGame(),
+    GameKeys.emojiPuzzle: EmojiPuzzleGame(),
+    GameKeys.fastMath: FastMathGame(),
+    GameKeys.secretJob: SecretJobGame(),
+    GameKeys.bestAnswer: BestAnswerGame(),
+    // --- ألعاب اللمّة (ترحيل 0013) ---
+    GameKeys.wink: WinkGame(),
+    GameKeys.spy: SpyGame(),
+    GameKeys.confessions: ConfessionsGame(),
+    GameKeys.mostLikely: MostLikelyGame(),
+    GameKeys.neverHaveI: NeverHaveIGame(),
+    GameKeys.wouldYouRather: WouldYouRatherGame(),
+    GameKeys.truth: TruthGame(),
   };
 
   static GameDefinition? of(String key) => definitions[key];

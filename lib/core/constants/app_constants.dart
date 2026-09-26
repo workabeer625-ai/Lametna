@@ -39,8 +39,32 @@ class GameKeys {
   static const String proverbs = 'proverbs';
   static const String groupStory = 'group_story';
 
+  // --- توسعة الكتالوج (ترحيل 0012) ---
+  static const String capitals = 'capitals';
+  static const String flags = 'flags';
+  static const String riddles = 'riddles';
+  static const String islamic = 'islamic';
+  static const String sports = 'sports';
+  static const String history = 'history';
+  static const String emojiPuzzle = 'emoji_puzzle';
+  static const String fastMath = 'fast_math';
+  static const String secretJob = 'secret_job';
+  static const String bestAnswer = 'best_answer';
+
+  // --- ألعاب اللمّة والتفاعل (ترحيل 0013) ---
+  static const String wink = 'wink';
+  static const String spy = 'spy';
+  static const String confessions = 'confessions';
+  static const String mostLikely = 'most_likely';
+  static const String neverHaveI = 'never_have_i';
+  static const String wouldYouRather = 'would_you_rather';
+  static const String truth = 'truth';
+
   static const List<String> all = <String>[
     animalPlantObject, mafia, whoAmI, trueFalse, guessWord, liar, proverbs, groupStory,
+    capitals, flags, riddles, islamic, sports, history, emojiPuzzle, fastMath,
+    secretJob, bestAnswer,
+    wink, spy, confessions, mostLikely, neverHaveI, wouldYouRather, truth,
   ];
 }
 
