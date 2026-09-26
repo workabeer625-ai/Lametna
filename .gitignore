@@ -49,3 +49,6 @@ admin/.vercel/
 
 # Fonts fetched by tool/fetch_fonts.sh (optional offline mode)
 assets/fonts/
+
+# ملف SQL مدموج يُولَّد محليًا للصق في Supabase — لا يُرفع
+supabase_all_in_one.sql
