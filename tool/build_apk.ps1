@@ -1,12 +1,16 @@
 # ============================================================
-#  لمّتنا / Lametna — بناء APK جاهز للمشاركة (Windows / PowerShell)
+#  Lametna - build a shareable release APK (Windows / PowerShell)
 #
-#  الاستخدام من جذر المشروع:
+#  NOTE: this file is intentionally ASCII-only. Windows PowerShell 5.1
+#  reads .ps1 files as ANSI, so non-ASCII text (Arabic, arrows) breaks
+#  the parser. Keep it ASCII.
+#
+#  Usage from the project root:
 #     powershell -ExecutionPolicy Bypass -File tool\build_apk.ps1
 #
-#  خيارات:
-#     -Split     يبني APK منفصلًا لكل معمارية (أصغر حجمًا، للمتقدمين)
-#     -Clean     ينظّف البناء السابق قبل البدء
+#  Options:
+#     -Split   build one APK per ABI (smaller, for advanced users)
+#     -Clean   clean the previous build first
 # ============================================================
 param(
     [switch]$Split,
@@ -17,57 +21,60 @@ $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 Write-Host ""
-Write-Host "==== لمّتنا — بناء نسخة الإصدار ====" -ForegroundColor Cyan
+Write-Host "==== Lametna - release build ====" -ForegroundColor Cyan
 Write-Host ""
 
-# ── 1) التحقق من env.json ───────────────────────────────────
+# ---- 1) env.json ------------------------------------------------
 if (-not (Test-Path "env.json")) {
-    Write-Host "✗ لا يوجد ملف env.json في جذر المشروع." -ForegroundColor Red
-    Write-Host "  أنشئه بهذا الشكل (القيم من Supabase → Settings → API):" -ForegroundColor Yellow
-    Write-Host '  {'
-    Write-Host '    "SUPABASE_URL": "https://YOUR-REF.supabase.co",'
-    Write-Host '    "SUPABASE_ANON_KEY": "YOUR_PUBLIC_ANON_KEY",'
-    Write-Host '    "APP_ENV": "prod"'
-    Write-Host '  }'
+    Write-Host "[X] env.json not found in the project root." -ForegroundColor Red
+    Write-Host "    Create it with your Supabase values (Settings -> API):" -ForegroundColor Yellow
+    Write-Host '    {'
+    Write-Host '      "SUPABASE_URL": "https://YOUR-REF.supabase.co",'
+    Write-Host '      "SUPABASE_ANON_KEY": "YOUR_PUBLIC_ANON_KEY",'
+    Write-Host '      "APP_ENV": "prod"'
+    Write-Host '    }'
     exit 1
 }
+Write-Host "[OK] env.json found" -ForegroundColor Green
 
-# ── 2) التحقق من مفتاح التوقيع ──────────────────────────────
+# ---- 2) signing key ---------------------------------------------
 if (Test-Path "android\key.properties") {
-    Write-Host "✓ مفتاح توقيع الإصدار موجود (android\key.properties)" -ForegroundColor Green
+    Write-Host "[OK] release signing key found (android\key.properties)" -ForegroundColor Green
 } else {
-    Write-Host "⚠ لا يوجد android\key.properties — سيُوقَّع البناء بمفتاح debug." -ForegroundColor Yellow
-    Write-Host "  يعمل للتجربة، لكن لا توزّعه: كل تحديث لاحق سيفشل تثبيته فوق القديم." -ForegroundColor Yellow
-    Write-Host "  الطريقة في docs\SHARE_APK.md" -ForegroundColor Yellow
-    Write-Host ""
+    Write-Host "[!] android\key.properties missing - the build will be signed with the DEBUG key." -ForegroundColor Yellow
+    Write-Host "    Fine for testing, but do not distribute it: future updates will not install over it." -ForegroundColor Yellow
+    Write-Host "    See docs/SHARE_APK.md" -ForegroundColor Yellow
 }
+Write-Host ""
 
-# ── 3) البناء ───────────────────────────────────────────────
+# ---- 3) build ----------------------------------------------------
 if ($Clean) {
-    Write-Host "==> تنظيف البناء السابق..." -ForegroundColor Cyan
+    Write-Host "==> flutter clean" -ForegroundColor Cyan
     flutter clean
 }
 
-Write-Host "==> جلب الحزم..." -ForegroundColor Cyan
+Write-Host "==> flutter pub get" -ForegroundColor Cyan
 flutter pub get
+if ($LASTEXITCODE -ne 0) { Write-Host "[X] pub get failed." -ForegroundColor Red; exit $LASTEXITCODE }
 
-$args = @("build", "apk", "--release", "--dart-define-from-file=env.json")
-if ($Split) { $args += "--split-per-abi" }
+$buildArgs = @("build", "apk", "--release", "--dart-define-from-file=env.json")
+if ($Split) { $buildArgs += "--split-per-abi" }
 
-Write-Host "==> flutter $($args -join ' ')" -ForegroundColor Cyan
-& flutter @args
-if ($LASTEXITCODE -ne 0) { Write-Host "✗ فشل البناء." -ForegroundColor Red; exit $LASTEXITCODE }
+Write-Host "==> flutter $($buildArgs -join ' ')" -ForegroundColor Cyan
+Write-Host "    (the first build can take 5-15 minutes)" -ForegroundColor DarkGray
+& flutter @buildArgs
+if ($LASTEXITCODE -ne 0) { Write-Host "[X] build failed." -ForegroundColor Red; exit $LASTEXITCODE }
 
-# ── 4) النتيجة ──────────────────────────────────────────────
+# ---- 4) result ---------------------------------------------------
 Write-Host ""
-Write-Host "✅ تمّ البناء. الملفات الجاهزة للمشاركة:" -ForegroundColor Green
+Write-Host "[DONE] APK files ready to share:" -ForegroundColor Green
 Get-ChildItem "build\app\outputs\flutter-apk\*.apk" |
     Where-Object { $_.Name -notlike "*debug*" } |
     ForEach-Object {
         $mb = [math]::Round($_.Length / 1MB, 1)
-        Write-Host ("   {0}   ({1} MB)" -f $_.FullName, $mb)
+        Write-Host ("   " + $_.FullName + "   (" + $mb + " MB)")
     }
 Write-Host ""
-Write-Host "أرسل ملف app-release.apk عبر واتساب/تيليجرام/رابط تحميل." -ForegroundColor Cyan
-Write-Host "على جهاز المستلم: افتح الملف ← اسمح بالتثبيت من مصادر غير معروفة ← تثبيت." -ForegroundColor Cyan
+Write-Host "Send app-release.apk as a DOCUMENT (WhatsApp / Telegram / download link)." -ForegroundColor Cyan
+Write-Host "On the receiving phone: open the file -> allow install from this source -> Install." -ForegroundColor Cyan
 Write-Host ""

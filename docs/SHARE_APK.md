@@ -100,6 +100,8 @@ cd F:\lametna
 powershell -ExecutionPolicy Bypass -File tool\build_apk.ps1
 ```
 
+أو ببساطة انقر مرّتين على `tool\build_apk.bat`.
+
 السكربت يتحقّق من `env.json` ومن مفتاح التوقيع، ثم يبني ويطبع مسار الملف وحجمه.
 
 ### الطريقة اليدوية
@@ -227,5 +229,7 @@ powershell -ExecutionPolicy Bypass -File tool\build_apk.ps1
 | فشل التوقيع أثناء البناء | مسار خاطئ في `key.properties` | مسار مطلق مع `\\` مزدوجة |
 | `Execution failed ... minSdkVersion` | جهاز أقدم من أندرويد 6 | غير مدعوم |
 | البناء بطيء جدًا أول مرة | Gradle يحمّل التبعيات | طبيعي (5–15 دقيقة)، والمرات التالية أسرع |
+| `Unexpected token` عند تشغيل سكربت `.ps1` | PowerShell 5.1 يقرأ الملف بترميز ANSI | السكربت صار إنجليزيًا خالصًا؛ حدّث المستودع (`git pull`). أو نفّذ الأمر يدويًا: `flutter build apk --release --dart-define-from-file=env.json` |
+| `cannot be loaded because running scripts is disabled` | سياسة التنفيذ | شغّله هكذا: `powershell -ExecutionPolicy Bypass -File tool\build_apk.ps1` أو انقر `tool\build_apk.bat` مرّتين |
 
 </div>
