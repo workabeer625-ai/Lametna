@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- شاشة الإقلاع (الوضع الفاتح، API 21+) -->
+<!-- شاشة الإقلاع (الوضع الداكن) -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/lametna_beige" />
+    <item android:drawable="@color/lametna_dark" />
 </layer-list>

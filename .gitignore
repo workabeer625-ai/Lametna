@@ -52,3 +52,6 @@ assets/fonts/
 
 # ملف SQL مدموج يُولَّد محليًا للصق في Supabase — لا يُرفع
 supabase_all_in_one.sql
+
+# Kotlin build logs
+android/.kotlin/

@@ -1,8 +1,24 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      لمّتنا / Lametna — صلاحيات الحد الأدنى.
+      الإنترنت فقط. لا كاميرا، لا ميكروفون، لا موقع، لا تخزين خارجي.
+      ⚠️ صلاحية INTERNET مطلوبة في نسخة الإصدار (release)؛ بدونها لا يتصل
+      التطبيق بـ Supabase عند المستخدمين.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- نمنع صراحةً أي صلاحية وسائط قد تضيفها مكتبة تابعة -->
+    <uses-permission android:name="android.permission.CAMERA" tools:node="remove" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
+
     <application
-        android:label="لمتنا"
+        android:label="لمّتنا"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

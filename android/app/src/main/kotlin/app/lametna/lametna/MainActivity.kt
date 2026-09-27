@@ -1,4 +1,4 @@
-package com.example.lametna
+package app.lametna.lametna
 
 import io.flutter.embedding.android.FlutterActivity
 

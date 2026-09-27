@@ -170,7 +170,11 @@ flutter build apk --release      --dart-define-from-file=env.json --split-per-ab
 flutter build appbundle --release --dart-define-from-file=env.json
 ```
 
-المخرجات في `build/app/outputs/`. التفاصيل ومتجر Google Play في [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+المخرجات في `build/app/outputs/`.
+
+- **مشاركة التطبيق مباشرة مع الأصدقاء (APK بلا متجر):** [docs/SHARE_APK.md](docs/SHARE_APK.md)
+  — أو اختصارًا على ويندوز: `powershell -ExecutionPolicy Bypass -File tool\build_apk.ps1`
+- **النشر في متجر Google Play:** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 ## الاختبارات
 
@@ -217,6 +221,7 @@ docs/             التوثيق الكامل
 | [GAME_RULES.md](docs/GAME_RULES.md) | قواعد ونقاط ومؤقتات الألعاب |
 | [SECURITY.md](docs/SECURITY.md) | نموذج التهديد، RLS، الإشراف، الخصوصية |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | من الصفر إلى متجر Play |
+| [SHARE_APK.md](docs/SHARE_APK.md) | بناء APK ومشاركته مباشرة بلا متجر |
 | [FREE_HOSTING.md](docs/FREE_HOSTING.md) | البقاء ضمن المجاني ومتى تحتاج ترقية |
 
 ## الخصوصية والأمان
