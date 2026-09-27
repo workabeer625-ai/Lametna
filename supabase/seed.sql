@@ -68,7 +68,7 @@ insert into public.games (key, name_ar, name_en, description_ar, description_en,
   ('mafia','المافيا','Mafia',
    'ليل ونهار، أدوار سرية، نقاش وتصويت. من المافيا بيننا؟',
    'Night and day, secret roles, discussion and voting. Who is the mafia?',
-   '🕵️', '{global,competitive}', 5, 16, 40, 120, 2),
+   '🕵️', '{global,competitive}', 5, 16, 20, 120, 2),
 
   ('who_am_i','من أنا؟','Who Am I?',
    'شخصية سرية وأسئلة بنعم أو لا حتى تصل إلى التخمين الصحيح.',
