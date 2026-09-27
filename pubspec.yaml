@@ -51,6 +51,27 @@ flutter:
   assets:
     - assets/avatars/
 
+  # خطوط عربية مضمّنة محليًا — لا حاجة لتحميلها من الإنترنت عند أول تشغيل.
+  fonts:
+    - family: Cairo
+      fonts:
+        - asset: assets/fonts/Cairo_400Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Cairo_500Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Cairo_600SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Cairo_700Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Cairo_900Black.ttf
+          weight: 900
+    - family: Baloo
+      fonts:
+        - asset: assets/fonts/BalooBhaijaan2_700Bold.ttf
+          weight: 700
+        - asset: assets/fonts/BalooBhaijaan2_800ExtraBold.ttf
+          weight: 800
+
 # أيقونة التطبيق (شعار لمّتنا — فنجان القهوة واللمّة)
 # للتوليد:  dart run flutter_launcher_icons
 flutter_launcher_icons:
