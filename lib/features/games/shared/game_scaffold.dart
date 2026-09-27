@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/widgets/countdown_bar.dart';
+import '../../../core/widgets/design_kit.dart';
 import '../../../models/models.dart';
 
 /// هيكل موحّد لشاشة الجولة: مؤقت الخادم + عنوان + محتوى.
@@ -14,6 +17,8 @@ class GameRoundScaffold extends StatelessWidget {
     this.subtitle,
     this.totalSeconds,
     this.footer,
+    this.accent,
+    this.badge,
   });
 
   final GameRound round;
@@ -22,10 +27,17 @@ class GameRoundScaffold extends StatelessWidget {
   final Widget child;
   final int? totalSeconds;
   final Widget? footer;
+  final Color? accent;
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+    final Color tone = accent ?? AppColors.gold;
+
     final int total = totalSeconds ??
         (round.startsAt == null
             ? 60
@@ -34,7 +46,7 @@ class GameRoundScaffold extends StatelessWidget {
     return Column(
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
           child: CountdownBar(
             endsAt: round.endsAt,
             totalSeconds: total <= 0 ? 60 : total,
@@ -43,25 +55,46 @@ class GameRoundScaffold extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: <Widget>[
-              Text(title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleLarge
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              if (subtitle != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(subtitle!,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall),
-                ),
-            ],
+          child: FadeInUp(
+            offset: 10,
+            child: GlassCard(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+              glowColor: tone,
+              child: Column(
+                children: <Widget>[
+                  if (badge != null) ...<Widget>[
+                    GlassPill(label: badge!, color: tone, dense: true),
+                    const SizedBox(height: 10),
+                  ],
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontDisplay,
+                      fontSize: 20,
+                      height: 1.4,
+                      fontWeight: FontWeight.w800,
+                      color: ink,
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        subtitle!,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: muted),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Expanded(child: child),
         if (footer != null) footer!,
       ],
@@ -76,27 +109,57 @@ class WaitingForOthers extends StatelessWidget {
   final int? totalCount;
 
   @override
-  Widget build(BuildContext context) => Center(
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
+    final double? progress = (submittedCount != null &&
+            totalCount != null &&
+            totalCount! > 0)
+        ? (submittedCount! / totalCount!).clamp(0.0, 1.0)
+        : null;
+
+    return Center(
+      child: FadeInUp(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            const Icon(Icons.check_circle, size: 56, color: Colors.green),
-            const SizedBox(height: 12),
-            Text(context.l10n.t('submitted'),
-                style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 6),
-            Text(context.l10n.t('waiting_others'),
-                style: Theme.of(context).textTheme.bodySmall),
-            if (submittedCount != null && totalCount != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text('$submittedCount / $totalCount',
-                    style: Theme.of(context).textTheme.titleMedium),
+            TimerRing(
+              progress: progress ?? 1,
+              color: AppColors.green,
+              size: 104,
+              child: const Icon(Icons.check_rounded,
+                  size: 44, color: AppColors.green),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              l10n.t('submitted'),
+              style: TextStyle(
+                fontFamily: AppTheme.fontDisplay,
+                fontSize: 19,
+                fontWeight: FontWeight.w900,
+                color: ink,
               ),
-            const SizedBox(height: 16),
-            const SizedBox(
-                width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l10n.t('waiting_others'),
+              style: TextStyle(
+                  fontSize: 13, fontWeight: FontWeight.w600, color: muted),
+            ),
+            if (submittedCount != null && totalCount != null) ...<Widget>[
+              const SizedBox(height: 14),
+              GlassPill(
+                icon: Icons.groups_2_outlined,
+                label: '$submittedCount / $totalCount',
+                color: AppColors.gold,
+              ),
+            ],
           ],
         ),
-      );
+      ),
+    );
+  }
 }

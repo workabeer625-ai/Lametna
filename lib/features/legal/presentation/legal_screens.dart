@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
+import '../../../core/widgets/design_kit.dart';
 
 /// صفحات نصية: الخصوصية، الشروط، قوانين الاستخدام.
 class LegalScreen extends StatelessWidget {
@@ -12,27 +16,82 @@ class LegalScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.t(titleKey))),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: sections
-            .map(((String, String) s) => Padding(
-                  padding: const EdgeInsets.only(bottom: 18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(s.$1,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 6),
-                      Text(s.$2, style: Theme.of(context).textTheme.bodyMedium),
-                    ],
-                  ),
-                ))
-            .toList(),
+      backgroundColor: Colors.transparent,
+      body: AuroraBackground(
+        intensity: 0.7,
+        child: SafeArea(
+          child: Column(
+            children: <Widget>[
+              ScreenHeader(
+                title: l10n.t(titleKey),
+                onBack: context.canPop() ? () => context.pop() : null,
+              ),
+              Expanded(
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 30),
+                  children: List<Widget>.generate(sections.length, (int i) {
+                    final (String, String) s = sections[i];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: FadeInUp(
+                        delay: Duration(milliseconds: 40 * (i < 8 ? i : 8)),
+                        offset: 10,
+                        child: GlassCard(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Container(
+                                    width: 6,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      gradient: AppGradients.gold,
+                                      borderRadius: BorderRadius.circular(100),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      s.$1,
+                                      style: TextStyle(
+                                        fontFamily: AppTheme.fontDisplay,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w900,
+                                        color: ink,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                s.$2,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  height: 1.7,
+                                  fontWeight: FontWeight.w600,
+                                  color: muted,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

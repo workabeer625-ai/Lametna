@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/extensions/context_ext.dart';
 import '../../../core/utils/content_filter.dart';
 import '../../../core/widgets/app_avatar.dart';
+import '../../../core/widgets/design_kit.dart';
 import '../../../models/models.dart';
 import '../engine/game_definition.dart';
 import '../shared/game_scaffold.dart';
@@ -109,21 +112,38 @@ class TruthGame extends GameDefinition {
           round: round,
           title: l10n.t('truth'),
           subtitle: '${round.prompt['spotlight_nickname'] ?? ''}',
+          accent: AppColors.plum,
           child: Center(
-            child: Padding(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text('💬', style: TextStyle(fontSize: 56)),
-                  const SizedBox(height: 12),
-                  Text(round.questionBody ?? '',
+              child: FadeInUp(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const Text('💬', style: TextStyle(fontSize: 56)),
+                    const SizedBox(height: 14),
+                    Text(
+                      round.questionBody ?? '',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 16),
-                  Text(l10n.t('truth_waiting'),
-                      style: Theme.of(context).textTheme.bodySmall),
-                ],
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontDisplay,
+                        fontSize: 18,
+                        height: 1.45,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? AppColors.inkLight
+                            : AppColors.inkDark,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    GlassPill(
+                      icon: Icons.hourglass_bottom_rounded,
+                      label: l10n.t('truth_waiting'),
+                      color: AppColors.gold,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -139,48 +159,84 @@ class TruthGame extends GameDefinition {
     }
 
     // --- مرحلة التقييم ---
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+
     return GameRoundScaffold(
       round: round,
       title: l10n.t('truth_rate'),
       subtitle: '${round.prompt['spotlight_nickname'] ?? ''}',
+      accent: AppColors.plum,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
         children: <Widget>[
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
+          FadeInUp(
+            child: GlassCard(
+              padding: const EdgeInsets.all(18),
+              glowColor: AppColors.plum,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(round.questionBody ?? '',
-                      style: Theme.of(context).textTheme.labelLarge),
+                  Text(
+                    round.questionBody ?? '',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: isDark ? AppColors.mutedLight : AppColors.mutedDark,
+                    ),
+                  ),
                   const SizedBox(height: 10),
-                  Text('${round.prompt['answer_text'] ?? ''}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    '${round.prompt['answer_text'] ?? ''}',
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontDisplay,
+                      fontSize: 19,
+                      height: 1.45,
+                      fontWeight: FontWeight.w900,
+                      color: ink,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           if (isMe)
-            Center(child: Text(l10n.t('truth_waiting_rate')))
+            Center(
+              child: GlassPill(
+                icon: Icons.hourglass_bottom_rounded,
+                label: l10n.t('truth_waiting_rate'),
+                color: AppColors.gold,
+              ),
+            )
           else
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                FilledButton.icon(
-                  onPressed: ctx.state.hasVoted
-                      ? null
-                      : () => _rate(context, ctx, true),
-                  icon: const Icon(Icons.thumb_up),
-                  label: Text(l10n.t('truth_like')),
+                Expanded(
+                  child: GradientButton(
+                    label: l10n.t('truth_like'),
+                    icon: Icons.thumb_up_rounded,
+                    height: 54,
+                    colors: const <Color>[
+                      AppColors.greenLight,
+                      AppColors.greenDeep,
+                    ],
+                    onTap: ctx.state.hasVoted
+                        ? null
+                        : () => _rate(context, ctx, true),
+                  ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: ctx.state.hasVoted
-                      ? null
-                      : () => _rate(context, ctx, false),
-                  icon: const Icon(Icons.thumb_down),
-                  label: Text(l10n.t('truth_dislike')),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GhostButton(
+                    label: l10n.t('truth_dislike'),
+                    icon: Icons.thumb_down_rounded,
+                    height: 54,
+                    onTap: ctx.state.hasVoted
+                        ? null
+                        : () => _rate(context, ctx, false),
+                  ),
                 ),
               ],
             ),
@@ -274,11 +330,15 @@ class _TextStageState extends State<_TextStage> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final GameRound round = widget.ctx.state.round!;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
 
     if (widget.ctx.state.hasSubmitted) {
       return GameRoundScaffold(
         round: round,
         title: widget.title,
+        accent: AppColors.plum,
         child: const WaitingForOthers(),
       );
     }
@@ -286,31 +346,70 @@ class _TextStageState extends State<_TextStage> {
     return GameRoundScaffold(
       round: round,
       title: widget.title,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      accent: AppColors.plum,
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
         child: Column(
           children: <Widget>[
-            Card(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(widget.prompt,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium),
+            FadeInUp(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  gradient: AppGradients.from(AppColors.plum),
+                  borderRadius: BorderRadius.circular(AppTheme.rLg),
+                  boxShadow: AppTheme.glow(AppColors.plum,
+                      opacity: 0.28, blur: 24, y: 8),
+                ),
+                child: Text(
+                  widget.prompt,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontDisplay,
+                    fontSize: 17,
+                    height: 1.45,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.white,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _controller,
-              maxLength: widget.maxLength,
-              maxLines: 3,
-              decoration: InputDecoration(labelText: widget.hint),
+            GlassCard(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+              child: TextField(
+                controller: _controller,
+                maxLength: widget.maxLength,
+                maxLines: 3,
+                style: TextStyle(
+                    fontSize: 15,
+                    height: 1.45,
+                    fontWeight: FontWeight.w700,
+                    color: ink),
+                decoration: InputDecoration(
+                  hintText: widget.hint,
+                  hintStyle: TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600, color: muted),
+                  counterText: '',
+                  filled: false,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                ),
+              ),
             ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: _busy ? null : _submit,
-              icon: const Icon(Icons.send),
-              label: Text(l10n.t('submit')),
+            const SizedBox(height: 14),
+            GradientButton(
+              label: l10n.t('submit'),
+              icon: Icons.send_rounded,
+              height: 56,
+              loading: _busy,
+              colors: <Color>[
+                AppColors.lighten(AppColors.plum, 0.1),
+                AppColors.deepen(AppColors.plum, 0.14),
+              ],
+              onTap: _busy ? null : _submit,
             ),
           ],
         ),
@@ -351,39 +450,126 @@ class _PlayerVoteStage extends StatelessWidget {
     final AppLocalizations l10n = context.l10n;
     final GameRound round = ctx.state.round!;
     final List<RoomPlayer> players = ctx.state.activePlayers;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
 
     return GameRoundScaffold(
       round: round,
       title: title,
+      accent: AppColors.rose,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
         children: <Widget>[
           if (highlight != null && highlight!.isNotEmpty)
-            Card(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(highlight!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            FadeInUp(
+              child: Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  gradient: AppGradients.from(AppColors.plum),
+                  borderRadius: BorderRadius.circular(AppTheme.rLg),
+                  boxShadow: AppTheme.glow(AppColors.plum,
+                      opacity: 0.28, blur: 24, y: 8),
+                ),
+                child: Text(
+                  highlight!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: AppTheme.fontDisplay,
+                    fontSize: 17,
+                    height: 1.45,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.white,
+                  ),
+                ),
               ),
             ),
           if (ctx.state.hasVoted)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Center(child: Text(l10n.t('waiting_others'))),
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Center(
+                child: GlassPill(
+                  icon: Icons.hourglass_bottom_rounded,
+                  label: l10n.t('waiting_others'),
+                  color: AppColors.gold,
+                ),
+              ),
             ),
-          ...players.map((RoomPlayer p) {
+          ...List<Widget>.generate(players.length, (int i) {
+            final RoomPlayer p = players[i];
             final bool isMe = p.userId == ctx.myUserId;
             final bool disabled = ctx.state.hasVoted || (isMe && !allowSelf);
-            return Card(
-              child: ListTile(
-                leading: AppAvatar(avatarKey: p.avatarKey, size: 40),
-                title: Text(p.nickname,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                trailing: FilledButton(
-                  onPressed: disabled ? null : () => _vote(context, p.userId),
-                  child: Text(l10n.t('vote')),
+            final Color tone = AppColors.forSeed(p.userId);
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: FadeInUp(
+                delay: Duration(milliseconds: 40 * (i < 8 ? i : 8)),
+                offset: 10,
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.white.op(0.05)
+                        : AppColors.white.op(0.66),
+                    borderRadius: BorderRadius.circular(AppTheme.rMd),
+                    border: Border.all(
+                      color: isMe
+                          ? AppColors.gold.op(0.35)
+                          : (isDark ? AppColors.white : AppColors.coffee)
+                              .op(0.10),
+                    ),
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppGradients.from(tone),
+                        ),
+                        child: AppAvatar(avatarKey: p.avatarKey, size: 40),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          p.nickname,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w800,
+                              color: ink),
+                        ),
+                      ),
+                      Pressable(
+                        onTap: disabled ? null : () => _vote(context, p.userId),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 9),
+                          decoration: BoxDecoration(
+                            gradient: disabled
+                                ? null
+                                : AppGradients.from(AppColors.rose),
+                            color:
+                                disabled ? AppColors.mutedDark.op(0.18) : null,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Text(
+                            l10n.t('vote'),
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                              color: disabled ? muted : AppColors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -402,31 +588,92 @@ class _TallyResult extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
     final Map<String, dynamic>? result = ctx.state.round?.result;
     final List<dynamic> votes = (result?['votes'] as List<dynamic>?) ?? <dynamic>[];
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 22),
       children: <Widget>[
-        Text('${result?['body'] ?? ''}',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
-        Text('🏆 ${result?['winner_nickname'] ?? '—'}',
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.bold)),
-        const SizedBox(height: 16),
-        ...votes.map((dynamic raw) {
+        Text(
+          '${result?['body'] ?? ''}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 14.5,
+              height: 1.45,
+              fontWeight: FontWeight.w700,
+              color: muted),
+        ),
+        const SizedBox(height: 12),
+        FadeInUp(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              gradient: AppGradients.gold,
+              borderRadius: BorderRadius.circular(100),
+              boxShadow:
+                  AppTheme.glow(AppColors.gold, opacity: 0.34, blur: 24, y: 10),
+            ),
+            child: Text(
+              '🏆 ${result?['winner_nickname'] ?? '—'}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: AppTheme.fontDisplay,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+                color: AppColors.espresso,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+        ...List<Widget>.generate(votes.length, (int i) {
           final Map<String, dynamic> v =
-              Map<String, dynamic>.from(raw as Map<dynamic, dynamic>);
-          return Card(
-            child: ListTile(
-              title: Text('${v['nickname'] ?? ''}'),
-              trailing: Text('${v['count'] ?? 0} ${l10n.t('vote')}',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              Map<String, dynamic>.from(votes[i] as Map<dynamic, dynamic>);
+          final int count = ((v['count'] ?? 0) as num).toInt();
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: FadeInUp(
+              delay: Duration(milliseconds: 40 * (i < 8 ? i : 8)),
+              offset: 10,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.white.op(0.05)
+                      : AppColors.white.op(0.64),
+                  borderRadius: BorderRadius.circular(AppTheme.rMd),
+                  border: Border.all(
+                      color: (isDark ? AppColors.white : AppColors.coffee)
+                          .op(0.10)),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        '${v['nickname'] ?? ''}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: ink),
+                      ),
+                    ),
+                    GlassPill(
+                      dense: true,
+                      icon: Icons.how_to_vote_rounded,
+                      label: '$count ${l10n.t('vote')}',
+                      color: AppColors.rose,
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
         }),
@@ -450,28 +697,47 @@ class _SimpleResult extends StatelessWidget {
   final String body;
 
   @override
-  Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
+  Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
+    return Center(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: FadeInUp(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Text(emoji, style: const TextStyle(fontSize: 64)),
-              const SizedBox(height: 12),
-              Text(title, style: Theme.of(context).textTheme.labelLarge),
-              const SizedBox(height: 6),
-              Text(big,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
-              Text(body,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium),
+              const SizedBox(height: 14),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 12.5, fontWeight: FontWeight.w800, color: muted),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                big,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: AppTheme.fontDisplay,
+                  fontSize: 22,
+                  height: 1.4,
+                  fontWeight: FontWeight.w900,
+                  color: ink,
+                ),
+              ),
+              if (body.isNotEmpty) ...<Widget>[
+                const SizedBox(height: 14),
+                GlassPill(label: body, color: AppColors.gold),
+              ],
             ],
           ),
         ),
-      );
+      ),
+    );
+  }
 }

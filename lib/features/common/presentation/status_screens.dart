@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/network/env.dart';
+import '../../../core/widgets/design_kit.dart';
 import '../../../providers/core_providers.dart';
 
 class _StatusScaffold extends StatelessWidget {
@@ -20,31 +23,62 @@ class _StatusScaffold extends StatelessWidget {
   final Widget? action;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(emoji, style: const TextStyle(fontSize: 72)),
-                const SizedBox(height: 18),
-                Text(title,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall
-                        ?.copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                Text(body,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium),
-                if (action != null) ...<Widget>[const SizedBox(height: 24), action!],
-              ],
+  Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: AuroraBackground(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.all(28),
+              child: FadeInUp(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(emoji, style: const TextStyle(fontSize: 72)),
+                    const SizedBox(height: 18),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontDisplay,
+                        fontSize: 23,
+                        height: 1.35,
+                        fontWeight: FontWeight.w900,
+                        color: ink,
+                      ),
+                    ),
+                    if (body.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: 10),
+                      Text(
+                        body,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          height: 1.6,
+                          fontWeight: FontWeight.w600,
+                          color: muted,
+                        ),
+                      ),
+                    ],
+                    if (action != null) ...<Widget>[
+                      const SizedBox(height: 26),
+                      SizedBox(width: 230, child: action!),
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
 }
 
 /// شاشة عدم وجود إنترنت — تعيد المحاولة تلقائيًا عند عودة الشبكة.
@@ -58,10 +92,10 @@ class NoInternetScreen extends ConsumerWidget {
       emoji: '📡',
       title: l10n.t('no_internet'),
       body: l10n.t('no_internet_body'),
-      action: FilledButton.icon(
-        onPressed: () => ref.invalidate(networkStatusProvider),
-        icon: const Icon(Icons.refresh),
-        label: Text(l10n.t('retry')),
+      action: GradientButton(
+        label: l10n.t('retry'),
+        icon: Icons.refresh_rounded,
+        onTap: () => ref.invalidate(networkStatusProvider),
       ),
     );
   }
@@ -81,7 +115,11 @@ class DisconnectedScreen extends StatelessWidget {
       body: l10n.t('reconnecting'),
       action: onRetry == null
           ? null
-          : FilledButton(onPressed: onRetry, child: Text(l10n.t('retry'))),
+          : GradientButton(
+              label: l10n.t('retry'),
+              icon: Icons.refresh_rounded,
+              onTap: onRetry,
+            ),
     );
   }
 }
@@ -98,9 +136,10 @@ class AppErrorScreen extends StatelessWidget {
       emoji: '⚠️',
       title: l10n.t('error_title'),
       body: message ?? l10n.t('error_body'),
-      action: FilledButton(
-        onPressed: () => context.go('/home'),
-        child: Text(l10n.t('home')),
+      action: GradientButton(
+        label: l10n.t('home'),
+        icon: Icons.home_rounded,
+        onTap: () => context.go('/home'),
       ),
     );
   }
@@ -116,9 +155,10 @@ class NotFoundScreen extends StatelessWidget {
       emoji: '🧭',
       title: l10n.t('not_found'),
       body: '',
-      action: FilledButton(
-        onPressed: () => context.go('/home'),
-        child: Text(l10n.t('home')),
+      action: GradientButton(
+        label: l10n.t('home'),
+        icon: Icons.home_rounded,
+        onTap: () => context.go('/home'),
       ),
     );
   }

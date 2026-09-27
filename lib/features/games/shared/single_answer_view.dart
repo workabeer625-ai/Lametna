@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/extensions/context_ext.dart';
 import '../../../core/utils/content_filter.dart';
+import '../../../core/widgets/design_kit.dart';
 import '../../../models/models.dart';
 import '../engine/game_definition.dart';
 import 'game_scaffold.dart';
@@ -256,6 +259,9 @@ class _SingleAnswerRoundViewState extends State<_SingleAnswerRoundView> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final GameRound round = _round;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
 
     if (widget.ctx.state.hasSubmitted) {
       return GameRoundScaffold(
@@ -271,61 +277,201 @@ class _SingleAnswerRoundViewState extends State<_SingleAnswerRoundView> {
       round: round,
       title: round.questionBody ?? l10n.t(widget.titleKey),
       subtitle: l10n.t(widget.hintKey),
+      badge: l10n.t(widget.titleKey),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 24),
         child: Column(
           children: <Widget>[
+            // ── التلميحات ────────────────────────────────────
             if (widget.progressiveHints && round.hints.isNotEmpty)
               ...List<Widget>.generate(_visibleHints(), (int i) {
-                return Card(
-                  child: ListTile(
-                    dense: true,
-                    leading: CircleAvatar(
-                      radius: 14,
-                      child: Text('${i + 1}', style: const TextStyle(fontSize: 12)),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: FadeInUp(
+                    offset: 8,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(10, 10, 14, 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.gold.op(isDark ? 0.12 : 0.10),
+                        borderRadius: BorderRadius.circular(AppTheme.rSm),
+                        border: Border.all(color: AppColors.gold.op(0.25)),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 26,
+                            height: 26,
+                            decoration: const BoxDecoration(
+                              gradient: AppGradients.gold,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${i + 1}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.espresso,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              round.hints[i],
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w700,
+                                color: ink,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    title: Text(round.hints[i]),
                   ),
                 );
               }),
-            const SizedBox(height: 12),
+
+            const SizedBox(height: 6),
+
+            // ── الإجابات ─────────────────────────────────────
             if (widget.choicesFromPrompt && choices.isNotEmpty)
               Column(
-                children: choices
-                    .map((String choice) => Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: FilledButton.tonal(
-                            onPressed: _busy ? null : () => _submit(choice),
-                            child: Text(choice, style: const TextStyle(fontSize: 18)),
-                          ),
-                        ))
-                    .toList(),
+                children: List<Widget>.generate(choices.length, (int i) {
+                  final Color tone = AppColors
+                      .playful[(i * 2) % AppColors.playful.length];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: FadeInUp(
+                      delay: Duration(milliseconds: 40 * i),
+                      offset: 10,
+                      child: _ChoiceTile(
+                        index: i,
+                        label: choices[i],
+                        tone: tone,
+                        enabled: !_busy,
+                        onTap: () => _submit(choices[i]),
+                      ),
+                    ),
+                  );
+                }),
               )
             else
               Column(
                 children: <Widget>[
-                  TextField(
-                    controller: _controller,
-                    maxLength: AppConstants.maxAnswerLength,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: _busy ? null : _submit,
-                    decoration: InputDecoration(
-                      labelText: l10n.t('guess_hint'),
-                      prefixIcon: const Icon(Icons.lightbulb_outline),
+                  GlassCard(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                    child: TextField(
+                      controller: _controller,
+                      maxLength: AppConstants.maxAnswerLength,
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: _busy ? null : _submit,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontDisplay,
+                        fontSize: 19,
+                        fontWeight: FontWeight.w800,
+                        color: ink,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: l10n.t('guess_hint'),
+                        hintStyle: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600, color: muted),
+                        counterText: '',
+                        filled: false,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    onPressed: _busy ? null : () => _submit(_controller.text),
-                    icon: _busy
-                        ? const SizedBox(
-                            width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.send),
-                    label: Text(l10n.t('submit')),
+                  const SizedBox(height: 14),
+                  GradientButton(
+                    label: l10n.t('submit'),
+                    icon: Icons.send_rounded,
+                    height: 56,
+                    loading: _busy,
+                    onTap: _busy ? null : () => _submit(_controller.text),
                   ),
                 ],
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// زرّ خيار كبير بحرف مميّز وتدرّج لوني.
+class _ChoiceTile extends StatelessWidget {
+  const _ChoiceTile({
+    required this.index,
+    required this.label,
+    required this.tone,
+    required this.enabled,
+    required this.onTap,
+  });
+
+  final int index;
+  final String label;
+  final Color tone;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  static const List<String> _letters = <String>['أ', 'ب', 'ج', 'د', 'هـ', 'و'];
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+
+    return Opacity(
+      opacity: enabled ? 1 : 0.6,
+      child: Pressable(
+        onTap: enabled ? onTap : null,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(10, 12, 16, 12),
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.white.op(0.06) : AppColors.white.op(0.7),
+            borderRadius: BorderRadius.circular(AppTheme.rMd),
+            border: Border.all(color: tone.op(0.3)),
+            boxShadow: AppTheme.glow(tone, opacity: 0.14, blur: 16, y: 6),
+          ),
+          child: Row(
+            children: <Widget>[
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  gradient: AppGradients.from(tone),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  index < _letters.length ? _letters[index] : '${index + 1}',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 16,
+                    height: 1.35,
+                    fontWeight: FontWeight.w800,
+                    color: ink,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -339,39 +485,138 @@ class _SingleAnswerResultView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
     final GameRound round = ctx.state.round!;
     final List<dynamic> answers =
         (round.result?['answers'] as List<dynamic>?) ?? <dynamic>[];
     final String? correct = round.result?['correct_answer'] as String?;
 
     return ListView(
-      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: <Widget>[
         if (correct != null)
-          Card(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            child: ListTile(
-              leading: const Icon(Icons.check_circle_outline),
-              title: Text(l10n.t('correct_answer')),
-              subtitle: Text(correct,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          FadeInUp(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+              decoration: BoxDecoration(
+                gradient: AppGradients.green,
+                borderRadius: BorderRadius.circular(AppTheme.rLg),
+                boxShadow: AppTheme.glow(AppColors.green,
+                    opacity: 0.34, blur: 26, y: 10),
+              ),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Icon(Icons.verified_rounded,
+                          size: 18, color: AppColors.white),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.t('correct_answer'),
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.white.op(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    correct,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: AppTheme.fontDisplay,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        const SizedBox(height: 8),
-        ...answers.map((dynamic raw) {
+        const SizedBox(height: 14),
+        ...List<Widget>.generate(answers.length, (int i) {
           final Map<String, dynamic> a =
-              Map<String, dynamic>.from(raw as Map<dynamic, dynamic>);
+              Map<String, dynamic>.from(answers[i] as Map<dynamic, dynamic>);
           final bool isCorrect = (a['correct'] ?? false) as bool;
-          return Card(
-            child: ListTile(
-              leading: Icon(
-                isCorrect ? Icons.check_circle : Icons.cancel,
-                color: isCorrect ? Colors.green : Theme.of(context).colorScheme.error,
+          final Color tone = isCorrect ? AppColors.green : AppColors.danger;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: FadeInUp(
+              delay: Duration(milliseconds: 40 * (i < 8 ? i : 8)),
+              offset: 10,
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(12, 11, 14, 11),
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.white.op(0.05)
+                      : AppColors.white.op(0.62),
+                  borderRadius: BorderRadius.circular(AppTheme.rMd),
+                  border: Border.all(color: tone.op(0.28)),
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: tone.op(0.16),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isCorrect ? Icons.check_rounded : Icons.close_rounded,
+                        size: 18,
+                        color: tone,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            '${a['nickname']}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: ink),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${a['value'] ?? ''}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '+${a['points']}',
+                      style: TextStyle(
+                        fontFamily: AppTheme.fontDisplay,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: tone,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              title: Text('${a['nickname']}'),
-              subtitle: Text('${a['value'] ?? ''}'),
-              trailing: Text('+${a['points']}',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
           );
         }),
