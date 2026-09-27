@@ -1,3 +1,7 @@
+# Local source documents and generated inspection artifacts
+google_drive/
+.tmp/
+
 # Miscellaneous
 *.class
 *.log
