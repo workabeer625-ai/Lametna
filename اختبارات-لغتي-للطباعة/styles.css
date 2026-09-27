@@ -1,0 +1,356 @@
+@font-face {
+  font-family: "ExamArabic";
+  src: local("Arial"), local("Tahoma");
+}
+
+:root {
+  --ink: #111;
+  --line: #333;
+  --soft: #ececec;
+  --page-w: 210mm;
+  --page-h: 297mm;
+}
+
+* { box-sizing: border-box; }
+html { direction: rtl; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: #d7d7d7;
+  font-family: "ExamArabic", Tahoma, Arial, sans-serif;
+  line-height: 1.35;
+}
+.screen-note {
+  position: sticky;
+  z-index: 10;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  min-height: 54px;
+  padding: 8px 20px;
+  color: #fff;
+  background: #222;
+  box-shadow: 0 3px 12px #0004;
+}
+.screen-note b { font-size: 18px; }
+.screen-note span { color: #ddd; font-size: 13px; }
+.exams { padding: 14mm 0; }
+.exam-page {
+  width: var(--page-w);
+  height: var(--page-h);
+  margin: 0 auto 12mm;
+  padding: 6mm;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2mm 7mm #0005;
+  page-break-after: always;
+  break-after: page;
+}
+.paper-frame {
+  height: 285mm;
+  display: grid;
+  grid-template-rows: 43mm 1fr 8mm;
+  overflow: hidden;
+  border: .45mm solid var(--line);
+}
+
+/* رأس الورقة الرسمي */
+.exam-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 31mm 1fr;
+  grid-template-rows: 25mm 11mm 7mm;
+  border-bottom: .35mm solid var(--line);
+  text-align: center;
+}
+.school-fields,
+.ministry {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1mm;
+  padding: 2mm 4mm;
+  font-size: 10.5px;
+}
+.school-fields { grid-column: 1; grid-row: 1; text-align: right; }
+.ministry { grid-column: 3; grid-row: 1; text-align: center; }
+.school-fields b,.ministry b { font-size: 11px; }
+.exam-logo {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  width: 22mm;
+  height: 22mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: .6mm double #111;
+  border-radius: 50%;
+  line-height: 1.05;
+}
+.exam-logo span { font-size: 16px; font-weight: 800; }
+.exam-logo small { font-size: 9px; }
+.exam-caption {
+  grid-column: 1 / 4;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-top: .25mm solid #555;
+  border-bottom: .25mm solid #555;
+  background: #f3f3f3;
+  line-height: 1.3;
+}
+.exam-caption b { font-size: 13px; }
+.exam-caption span { font-size: 10px; }
+.date-row {
+  grid-column: 1 / 4;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5mm;
+  font-size: 9px;
+}
+
+.page-body { min-height: 0; }
+.page-one {
+  display: grid;
+  grid-template-rows: 130mm 104mm;
+}
+.page-two {
+  display: grid;
+  grid-template-rows: 72mm 57mm 79mm 26mm;
+}
+.question-block {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 10mm minmax(0, 1fr) 12mm;
+  direction: ltr;
+  border-bottom: .3mm solid var(--line);
+}
+.question-content {
+  direction: rtl;
+  min-width: 0;
+  overflow: hidden;
+  padding: 2.4mm 4mm 1.5mm;
+}
+.question-rail {
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5mm;
+  border-right: .3mm solid var(--line);
+  background: #f1f1f1;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 10px;
+}
+.question-rail span { font-size: 8px; font-weight: 400; }
+.mark-rail {
+  direction: rtl;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  border-left: .3mm solid var(--line);
+  text-align: center;
+  font-size: 7px;
+}
+.mark-rail > * {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: 1mm 0;
+  border-bottom: .2mm solid #777;
+}
+.mark-rail > *:last-child { border-bottom: 0; }
+.mark-rail b { font-size: 10px; }
+.mark-rail i { font-style: normal; writing-mode: vertical-rl; }
+h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5mm;
+  margin: 0 0 1.5mm;
+  font-size: 11px;
+  line-height: 1.35;
+}
+h2 > span {
+  flex: 0 0 5.5mm;
+  height: 5.5mm;
+  display: inline-grid;
+  place-items: center;
+  border: .25mm solid #222;
+  border-radius: 50%;
+  font-size: 9px;
+}
+ol { margin: 0; padding: 0 6mm 0 0; }
+li { padding-right: 1mm; }
+.statement-list {
+  display: grid;
+  gap: .4mm;
+  margin-bottom: 2.2mm;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+.statement-list li { position: relative; padding-right: 12mm; }
+.answer-bracket {
+  position: absolute;
+  right: -5mm;
+  min-width: 15mm;
+  letter-spacing: 1px;
+}
+.word-bank {
+  margin: 0 6mm 1.3mm;
+  padding: 1mm 2mm;
+  border: .25mm solid #555;
+  border-radius: 1.5mm;
+  background: #f7f7f7;
+  font-size: 9.2px;
+  text-align: center;
+}
+.alpha-list,
+.fill-list {
+  display: grid;
+  gap: .7mm;
+  font-size: 10.3px;
+  line-height: 1.5;
+}
+.poem-lines {
+  width: 94%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5mm 5mm;
+  margin: 1mm auto 2.5mm;
+  font-size: 10.2px;
+  font-weight: 600;
+  text-align: center;
+}
+.poem-lines > div {
+  min-height: 7mm;
+  display: grid;
+  place-items: center;
+  border-bottom: .2mm dotted #555;
+}
+.copy-source {
+  width: 82%;
+  margin: 1.5mm auto;
+  padding: 1mm;
+  border: .25mm solid #555;
+  background: #f5f5f5;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+.handwriting-lines,
+.dictation-lines {
+  width: 94%;
+  display: grid;
+  gap: 5mm;
+  margin: 3mm auto 0;
+}
+.handwriting-lines i,
+.dictation-lines i {
+  display: block;
+  height: 5mm;
+  border-bottom: .25mm dotted #555;
+}
+.fill-list { grid-template-columns: 1fr 1fr; gap: .5mm 8mm; margin-bottom: 1.7mm; }
+.fill-list li:last-child { grid-column: 1 / 3; }
+.arrange-words {
+  display: inline-block;
+  min-width: 65%;
+  margin-right: 7mm;
+  padding: .7mm 3mm;
+  border: .25mm solid #555;
+  background: #f5f5f5;
+  font-size: 10px;
+  text-align: center;
+}
+.long-answer {
+  display: inline-block;
+  width: 28%;
+  height: 6mm;
+  margin-right: 3mm;
+  vertical-align: bottom;
+  border-bottom: .25mm dotted #333;
+}
+.split-skills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5mm;
+}
+.split-skills > div + div { padding-right: 4mm; border-right: .25mm solid #777; }
+.analysis-row {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  margin: 2.2mm 5mm;
+  font-size: 10px;
+}
+.analysis-row > b { min-width: 17mm; text-align: center; }
+.analysis-row > span { direction: rtl; display: flex; }
+.analysis-row i {
+  width: 8mm;
+  height: 7mm;
+  display: inline-block;
+  border: .25mm solid #333;
+  border-left: 0;
+}
+.analysis-row i:last-child { border-left: .25mm solid #333; }
+.madd-row {
+  display: grid;
+  grid-template-columns: 9mm repeat(3, 1fr);
+  align-items: center;
+  margin: 1.2mm 4mm;
+  text-align: center;
+  font-size: 10px;
+}
+.madd-row b { font-size: 13px; }
+.madd-row span { margin: 0 .6mm; padding: 1mm; border: .25mm solid #444; }
+.comprehension-list {
+  display: grid;
+  gap: 1.8mm;
+  font-size: 10.4px;
+}
+.comprehension-list li { display: grid; grid-template-columns: auto 1fr; gap: 3mm; }
+.comprehension-list i { display: block; min-width: 20mm; border-bottom: .25mm dotted #444; }
+.q-five .dictation-lines { grid-template-columns: 1fr 1fr; gap: 5mm; margin-top: 0; }
+.score-area { padding: 1.5mm 12mm 1mm 10mm; }
+.score-table { width: 100%; border-collapse: collapse; font-size: 8.5px; text-align: center; }
+.score-table caption { margin-bottom: .7mm; font-size: 9px; font-weight: 700; }
+.score-table th,.score-table td { height: 4.5mm; border: .25mm solid #333; }
+.score-table th { background: #eee; }
+.signatures { display: flex; justify-content: space-between; margin-top: 1mm; font-size: 7px; }
+.page-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5mm;
+  font-size: 8px;
+}
+.page-footer b { font-size: 8.5px; }
+
+@page { size: A4 portrait; margin: 0; }
+@media print {
+  html,body { width: 210mm; margin: 0 !important; background: #fff; }
+  .screen-note { display: none !important; }
+  .exams { padding: 0; }
+  .exam-page {
+    margin: 0;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .exam-page:last-child { page-break-after: auto; break-after: auto; }
+}
+
+@media screen and (max-width: 850px) {
+  .screen-note { position: static; flex-direction: column; gap: 2px; text-align: center; }
+  .exams { width: 210mm; transform-origin: top right; }
+}
