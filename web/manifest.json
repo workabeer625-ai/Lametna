@@ -1,11 +1,11 @@
 {
-    "name": "لمتنا",
-    "short_name": "لمتنا",
+    "name": "lametna",
+    "short_name": "lametna",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#080312",
-    "theme_color": "#8B5CF6",
-    "description": "لمتنا — ألعاب جماعية عربية بتصميم حديث",
+    "background_color": "#F7F0E5",
+    "theme_color": "#6F4E37",
+    "description": "A new Flutter project.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
