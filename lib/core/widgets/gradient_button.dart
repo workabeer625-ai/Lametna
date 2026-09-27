@@ -59,7 +59,10 @@ class _GradientButtonState extends State<GradientButton>
         <Color>[AppColors.lighten(scheme.primary, 0.08), AppColors.deepen(scheme.primary, 0.12)];
     final bool enabled = widget.onTap != null && !widget.loading;
     final BorderRadius br = BorderRadius.circular(widget.height / 2);
-    final Color fg = scheme.onPrimary;
+    // لون النص يُحسب من إضاءة التدرّج حتى يبقى التباين مضموناً مع أي لون.
+    final Color fg = colors.first.computeLuminance() > 0.55
+        ? AppColors.espresso
+        : AppColors.white;
 
     return Opacity(
       opacity: enabled ? 1 : 0.5,
@@ -142,14 +145,18 @@ class _GradientButtonState extends State<GradientButton>
                               Icon(widget.icon, size: 20, color: fg),
                               const SizedBox(width: 9),
                             ],
-                            Text(
-                              widget.label,
-                              style: TextStyle(
-                                fontFamily: AppTheme.fontBody,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: fg,
-                                height: 1.1,
+                            Flexible(
+                              child: Text(
+                                widget.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: AppTheme.fontBody,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: fg,
+                                  height: 1.1,
+                                ),
                               ),
                             ),
                           ],
@@ -215,14 +222,18 @@ class GhostButton extends StatelessWidget {
                   Icon(icon, size: 19, color: c),
                   const SizedBox(width: 8),
                 ],
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: AppTheme.fontBody,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: c,
-                    height: 1.1,
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontBody,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: c,
+                      height: 1.1,
+                    ),
                   ),
                 ),
               ],
