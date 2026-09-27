@@ -13,5 +13,6 @@ export 'flip_card.dart';
 export 'glass.dart';
 export 'gradient_button.dart';
 export 'pressable.dart';
+export 'screen_header.dart';
 export 'section_header.dart';
 export 'timer_ring.dart';

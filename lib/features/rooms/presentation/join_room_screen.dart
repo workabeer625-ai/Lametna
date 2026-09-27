@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/extensions/context_ext.dart';
 import '../../../core/utils/validators.dart';
+import '../../../core/widgets/design_kit.dart';
 import '../../../models/models.dart';
 import '../../../providers/core_providers.dart';
 
@@ -93,63 +96,145 @@ class _JoinRoomScreenState extends ConsumerState<JoinRoomScreen> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.t('join_by_code'))),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: <Widget>[
-            const SizedBox(height: 8),
-            Icon(Icons.vpn_key_outlined,
-                size: 64, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _code,
-              textCapitalization: TextCapitalization.characters,
-              maxLength: 6,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  fontSize: 30, fontWeight: FontWeight.bold, letterSpacing: 8),
-              decoration: InputDecoration(
-                labelText: l10n.t('enter_code'),
-                hintText: l10n.t('code_hint'),
-                counterText: '',
+      backgroundColor: Colors.transparent,
+      body: AuroraBackground(
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: <Widget>[
+              ScreenHeader(
+                title: l10n.t('join_by_code'),
+                onBack: () => context.pop(),
               ),
-              onChanged: (String v) {
-                final String norm = Validators.normalizeRoomCode(v);
-                if (norm != v) {
-                  _code.value = TextEditingValue(
-                    text: norm,
-                    selection: TextSelection.collapsed(offset: norm.length),
-                  );
-                }
-              },
-            ),
-            if (_needsPassword) ...<Widget>[
-              const SizedBox(height: 12),
-              TextField(
-                controller: _password,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: l10n.t('room_password'),
-                  prefixIcon: const Icon(Icons.lock_outline),
+              Expanded(
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 26, 20, 36),
+                  children: <Widget>[
+                    // ── أيقونة المفتاح المتوهّجة ─────────────────
+                    FadeInUp(
+                      child: Center(
+                        child: Container(
+                          width: 92,
+                          height: 92,
+                          decoration: BoxDecoration(
+                            gradient: AppGradients.gold,
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: AppTheme.glow(AppColors.gold,
+                                opacity: 0.45, blur: 34, y: 14),
+                          ),
+                          child: const Icon(Icons.vpn_key_rounded,
+                              size: 42, color: AppColors.espresso),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 70),
+                      child: Text(
+                        l10n.t('code_hint'),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: muted,
+                        ),
+                      ),
+                    ),
+
+                    // ── حقل الرمز ───────────────────────────────
+                    const SizedBox(height: 22),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 120),
+                      child: GlassCard(
+                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+                        glowColor: AppColors.gold,
+                        child: TextField(
+                          controller: _code,
+                          textCapitalization: TextCapitalization.characters,
+                          maxLength: 6,
+                          textAlign: TextAlign.center,
+                          textDirection: TextDirection.ltr,
+                          style: TextStyle(
+                            fontFamily: AppTheme.fontDisplay,
+                            fontSize: 34,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 12,
+                            color: ink,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'ABC123',
+                            hintStyle: TextStyle(
+                              fontFamily: AppTheme.fontDisplay,
+                              fontSize: 30,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 12,
+                              color: muted.op(0.35),
+                            ),
+                            counterText: '',
+                            filled: false,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                          ),
+                          onChanged: (String v) {
+                            final String norm = Validators.normalizeRoomCode(v);
+                            if (norm != v) {
+                              _code.value = TextEditingValue(
+                                text: norm,
+                                selection: TextSelection.collapsed(offset: norm.length),
+                              );
+                            }
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    ),
+
+                    // ── كلمة السر عند الحاجة ────────────────────
+                    if (_needsPassword) ...<Widget>[
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: _password,
+                        obscureText: true,
+                        style: TextStyle(color: ink, fontWeight: FontWeight.w600),
+                        decoration: InputDecoration(
+                          labelText: l10n.t('room_password'),
+                          prefixIcon: const Icon(Icons.lock_outline),
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 26),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 170),
+                      child: GradientButton(
+                        label: l10n.t('join'),
+                        icon: Icons.login_rounded,
+                        height: 58,
+                        loading: _busy,
+                        onTap: _busy ? null : () => _join(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 210),
+                      child: GhostButton(
+                        label: l10n.t('join_as_spectator'),
+                        icon: Icons.visibility_outlined,
+                        onTap: _busy ? null : () => _join(asSpectator: true),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
-            const SizedBox(height: 20),
-            FilledButton(
-              onPressed: _busy ? null : () => _join(),
-              child: _busy
-                  ? const SizedBox(
-                      width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text(l10n.t('join')),
-            ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: _busy ? null : () => _join(asSpectator: true),
-              child: Text(l10n.t('join_as_spectator')),
-            ),
-          ],
+          ),
         ),
       ),
     );

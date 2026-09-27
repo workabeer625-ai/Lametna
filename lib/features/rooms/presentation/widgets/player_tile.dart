@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/localization/app_localizations.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../core/widgets/app_avatar.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../../../models/models.dart';
 
+/// بطاقة لاعب زجاجية — تُستعمل في غرفة الانتظار وقوائم اللاعبين.
 class PlayerTile extends StatelessWidget {
   const PlayerTile({
     super.key,
@@ -25,65 +29,146 @@ class PlayerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
 
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      leading: AppAvatar(
-        avatarKey: player.avatarKey,
-        size: 42,
-        dimmed: !player.isAlive || player.isDisconnected,
-        badge: player.isDisconnected
-            ? const _Dot(color: Colors.grey, icon: Icons.wifi_off)
-            : (showReady && player.isReady
-                ? const _Dot(color: Colors.green, icon: Icons.check)
-                : null),
-      ),
-      title: Row(
-        children: <Widget>[
-          Flexible(
-            child: Text(
-              player.nickname,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                decoration: player.isAlive ? null : TextDecoration.lineThrough,
-              ),
+    final bool ready = showReady && player.isReady;
+    final Color accent = !player.isAlive
+        ? AppColors.danger
+        : (ready ? AppColors.green : (isHost ? AppColors.gold : AppColors.latte));
+
+    final String status = player.isSpectator
+        ? l10n.t('spectators')
+        : (!player.isAlive
+            ? l10n.t('you_are_dead')
+            : (player.isReady ? l10n.t('ready') : l10n.t('not_ready')));
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Pressable(
+        onTap: onTap,
+        scale: onTap == null ? 1 : 0.98,
+        child: AnimatedContainer(
+          duration: AppTheme.fast,
+          curve: AppTheme.ease,
+          padding: const EdgeInsets.fromLTRB(12, 10, 14, 10),
+          decoration: BoxDecoration(
+            color: isMe
+                ? accent.op(isDark ? 0.14 : 0.10)
+                : (isDark ? AppColors.white.op(0.05) : AppColors.white.op(0.62)),
+            borderRadius: BorderRadius.circular(AppTheme.rMd),
+            border: Border.all(
+              color: isMe
+                  ? accent.op(0.45)
+                  : (isDark ? AppColors.white : AppColors.coffee).op(0.10),
+              width: isMe ? 1.4 : 1,
             ),
+            boxShadow: ready ? AppTheme.glow(accent, opacity: 0.18, blur: 16, y: 6) : null,
           ),
-          if (isMe)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 6),
-              child: Text('(${l10n.t('you')})',
-                  style: TextStyle(fontSize: 12, color: colors.outline)),
-            ),
-          if (isHost)
-            const Padding(
-              padding: EdgeInsetsDirectional.only(start: 6),
-              child: Icon(Icons.star, size: 15, color: Color(0xFFD9A441)),
-            ),
-          if (player.isMuted)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 6),
-              child: Icon(Icons.volume_off, size: 15, color: colors.error),
-            ),
-        ],
+          child: Row(
+            children: <Widget>[
+              // الأفاتار مع حلقة ملوّنة
+              Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: AppGradients.from(accent),
+                ),
+                child: AppAvatar(
+                  avatarKey: player.avatarKey,
+                  size: 42,
+                  dimmed: !player.isAlive || player.isDisconnected,
+                  badge: player.isDisconnected
+                      ? const _Dot(color: AppColors.mutedDark, icon: Icons.wifi_off)
+                      : (ready ? const _Dot(color: AppColors.green, icon: Icons.check) : null),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Flexible(
+                          child: Text(
+                            player.nickname,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w800,
+                              color: ink,
+                              decoration:
+                                  player.isAlive ? null : TextDecoration.lineThrough,
+                            ),
+                          ),
+                        ),
+                        if (isMe)
+                          Padding(
+                            padding: const EdgeInsetsDirectional.only(start: 6),
+                            child: Text('(${l10n.t('you')})',
+                                style: TextStyle(fontSize: 11, color: muted)),
+                          ),
+                        if (isHost)
+                          const Padding(
+                            padding: EdgeInsetsDirectional.only(start: 6),
+                            child: Icon(Icons.star_rounded, size: 16, color: AppColors.gold),
+                          ),
+                        if (player.isMuted)
+                          const Padding(
+                            padding: EdgeInsetsDirectional.only(start: 6),
+                            child:
+                                Icon(Icons.volume_off_rounded, size: 15, color: AppColors.danger),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            status,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 11.5, fontWeight: FontWeight.w600, color: muted),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (trailing != null)
+                trailing!
+              else if (player.score > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    gradient: AppGradients.gold,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Text(
+                    '${player.score}',
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.espresso,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
-      subtitle: Text(
-        player.isSpectator
-            ? l10n.t('spectators')
-            : (!player.isAlive
-                ? l10n.t('you_are_dead')
-                : (player.isReady ? l10n.t('ready') : l10n.t('not_ready'))),
-        style: TextStyle(fontSize: 12, color: colors.outline),
-      ),
-      trailing: trailing ??
-          (player.score > 0
-              ? Text('${player.score}',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: colors.primary, fontSize: 16))
-              : null),
     );
   }
 }
@@ -102,6 +187,6 @@ class _Dot extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(color: Theme.of(context).colorScheme.surface, width: 2),
         ),
-        child: Icon(icon, size: 10, color: Colors.white),
+        child: Icon(icon, size: 10, color: AppColors.white),
       );
 }

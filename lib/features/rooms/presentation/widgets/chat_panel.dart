@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/localization/app_localizations.dart';
+import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/errors/error_mapper.dart';
 import '../../../../core/extensions/context_ext.dart';
 import '../../../../core/utils/content_filter.dart';
 import '../../../../core/widgets/app_avatar.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../../../models/models.dart';
 import '../../../../providers/room_provider.dart';
 import 'player_actions_sheet.dart';
@@ -85,16 +88,36 @@ class _ChatPanelState extends ConsumerState<ChatPanel> {
         .where((ChatMessage m) => m.channel == widget.channel || m.isSystem)
         .toList();
 
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+
     return Column(
       children: <Widget>[
         Expanded(
           child: messages.isEmpty
               ? Center(
-                  child: Text(l10n.t('chat_rules'),
-                      style: Theme.of(context).textTheme.bodySmall))
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(Icons.forum_outlined, size: 40, color: muted.op(0.5)),
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.t('chat_rules'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 12.5, fontWeight: FontWeight.w600, color: muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : ListView.builder(
                   controller: _scroll,
-                  padding: const EdgeInsets.all(12),
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                   itemCount: messages.length,
                   itemBuilder: (_, int i) => _Bubble(
                     message: messages[i],
@@ -115,32 +138,67 @@ class _ChatPanelState extends ConsumerState<ChatPanel> {
         SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 4, 10, 8),
+            padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    enabled: widget.enabled && !_sending,
-                    maxLength: AppConstants.maxMessageLength,
-                    textInputAction: TextInputAction.send,
-                    onSubmitted: (_) => _send(),
-                    decoration: InputDecoration(
-                      hintText: widget.enabled
-                          ? l10n.t('message_hint')
-                          : l10n.t('you_are_dead'),
-                      counterText: '',
-                      isDense: true,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.white.op(0.06) : AppColors.white.op(0.7),
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                          color: (isDark ? AppColors.white : AppColors.coffee).op(0.12)),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: TextField(
+                      controller: _controller,
+                      enabled: widget.enabled && !_sending,
+                      maxLength: AppConstants.maxMessageLength,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _send(),
+                      style: TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.w600, color: ink),
+                      decoration: InputDecoration(
+                        hintText: widget.enabled
+                            ? l10n.t('message_hint')
+                            : l10n.t('you_are_dead'),
+                        hintStyle: TextStyle(fontSize: 13.5, color: muted),
+                        counterText: '',
+                        isDense: true,
+                        filled: false,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        disabledBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton.filled(
-                  onPressed: (widget.enabled && !_sending) ? _send : null,
-                  icon: _sending
-                      ? const SizedBox(
-                          width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.send),
+                Pressable(
+                  onTap: (widget.enabled && !_sending) ? _send : null,
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: widget.enabled
+                          ? AppGradients.gold
+                          : AppGradients.from(AppColors.mutedDark),
+                      shape: BoxShape.circle,
+                      boxShadow: widget.enabled
+                          ? AppTheme.glow(AppColors.gold, opacity: 0.34, blur: 18, y: 6)
+                          : null,
+                    ),
+                    child: _sending
+                        ? const Padding(
+                            padding: EdgeInsets.all(15),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.2, color: AppColors.espresso),
+                          )
+                        : const Icon(Icons.send_rounded,
+                            size: 20, color: AppColors.espresso),
+                  ),
                 ),
               ],
             ),
@@ -160,24 +218,39 @@ class _Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
 
     if (message.isSystem) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.symmetric(vertical: 7),
         child: Center(
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(12),
+              color: AppColors.gold.op(isDark ? 0.14 : 0.16),
+              borderRadius: BorderRadius.circular(100),
+              border: Border.all(color: AppColors.gold.op(0.24)),
             ),
-            child: Text(message.body,
-                style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+            child: Text(
+              message.body,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 11.5, fontWeight: FontWeight.w700, color: muted),
+            ),
           ),
         ),
       );
     }
+
+    final Color seed = AppColors.forSeed(message.nickname ?? message.userId ?? '');
+    final BorderRadius radius = BorderRadius.only(
+      topLeft: const Radius.circular(18),
+      topRight: const Radius.circular(18),
+      bottomLeft: Radius.circular(isMine ? 18 : 6),
+      bottomRight: Radius.circular(isMine ? 6 : 18),
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -193,20 +266,46 @@ class _Bubble extends StatelessWidget {
             child: GestureDetector(
               onLongPress: onLongPress,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: isMine ? colors.primaryContainer : colors.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(16),
+                  gradient: isMine ? AppGradients.green : null,
+                  color: isMine
+                      ? null
+                      : (isDark ? AppColors.white.op(0.07) : AppColors.white.op(0.78)),
+                  borderRadius: radius,
+                  border: isMine
+                      ? null
+                      : Border.all(
+                          color: (isDark ? AppColors.white : AppColors.coffee).op(0.10)),
+                  boxShadow: isMine
+                      ? AppTheme.glow(AppColors.green, opacity: 0.22, blur: 14, y: 5)
+                      : null,
                 ),
                 child: Column(
                   crossAxisAlignment:
                       isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: <Widget>[
                     if (!isMine)
-                      Text(message.nickname ?? '',
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontWeight: FontWeight.bold, color: colors.primary)),
-                    Text(message.body),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 3),
+                        child: Text(
+                          message.nickname ?? '',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: seed,
+                          ),
+                        ),
+                      ),
+                    Text(
+                      message.body,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        height: 1.35,
+                        fontWeight: FontWeight.w600,
+                        color: isMine ? AppColors.white : ink,
+                      ),
+                    ),
                   ],
                 ),
               ),

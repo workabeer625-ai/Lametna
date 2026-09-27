@@ -193,7 +193,9 @@ class GhostButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final Color c = color ?? (isDark ? AppColors.inkLight : AppColors.coffee);
+    final bool disabled = onTap == null;
+    final Color base = color ?? (isDark ? AppColors.inkLight : AppColors.coffee);
+    final Color c = disabled ? base.op(0.45) : base;
     final BorderRadius br = BorderRadius.circular(height / 2);
 
     return Pressable(

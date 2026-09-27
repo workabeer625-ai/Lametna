@@ -4,9 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/extensions/context_ext.dart';
 import '../../../core/widgets/connection_banner.dart';
+import '../../../core/widgets/design_kit.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../models/models.dart';
 import '../../../providers/room_provider.dart';
@@ -66,69 +69,70 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
         if (!didPop) _confirmLeave();
       },
       child: Scaffold(
-        body: async.when(
-          loading: () => const LoadingView(),
-          error: (Object e, _) => Scaffold(
-            appBar: AppBar(),
-            body: ErrorView(error: e, onRetry: controller.hardRefresh),
-          ),
-          data: (RoomState state) {
-            final Room? room = state.room;
-            if (room == null) {
-              return Scaffold(
-                appBar: AppBar(),
-                body: EmptyView(message: l10n.t('not_found')),
-              );
-            }
-            final bool isHost = room.isHost(controller.myId);
+        backgroundColor: Colors.transparent,
+        body: AuroraBackground(
+          intensity: 0.85,
+          child: SafeArea(
+            bottom: false,
+            child: async.when(
+              loading: () => const LoadingView(),
+              error: (Object e, _) => Column(
+                children: <Widget>[
+                  ScreenHeader(title: l10n.t('room'), onBack: _confirmLeave),
+                  Expanded(child: ErrorView(error: e, onRetry: controller.hardRefresh)),
+                ],
+              ),
+              data: (RoomState state) {
+                final Room? room = state.room;
+                if (room == null) {
+                  return Column(
+                    children: <Widget>[
+                      ScreenHeader(title: l10n.t('room'), onBack: _confirmLeave),
+                      Expanded(child: EmptyView(message: l10n.t('not_found'))),
+                    ],
+                  );
+                }
+                final bool isHost = room.isHost(controller.myId);
 
-            return Column(
-              children: <Widget>[
-                ConnectionBanner(realtimeStatus: state.realtime),
-                Expanded(
-                  child: Scaffold(
-                    appBar: AppBar(
-                      leading: IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: _confirmLeave,
-                        tooltip: l10n.t('leave_room'),
-                      ),
-                      title: Column(
-                        children: <Widget>[
-                          Text(room.title.isEmpty ? l10n.t('room') : room.title,
-                              style: const TextStyle(fontSize: 16)),
-                          Text('#${room.code}',
-                              style: const TextStyle(fontSize: 12, letterSpacing: 2)),
-                        ],
-                      ),
+                return Column(
+                  children: <Widget>[
+                    ConnectionBanner(realtimeStatus: state.realtime),
+                    ScreenHeader(
+                      title: room.title.isEmpty ? l10n.t('room') : room.title,
+                      subtitle: '#${room.code}',
+                      backIcon: Icons.close_rounded,
+                      onBack: _confirmLeave,
                       actions: <Widget>[
-                        IconButton(
-                          tooltip: l10n.t('copy'),
-                          icon: const Icon(Icons.copy_all_outlined),
-                          onPressed: () async {
+                        GlassIconButton(
+                          icon: Icons.copy_all_outlined,
+                          onTap: () async {
                             await Clipboard.setData(ClipboardData(text: room.code));
                             if (context.mounted) context.showSnack(l10n.t('copied'));
                           },
                         ),
-                        if (isHost && room.status == RoomStatus.playing)
-                          IconButton(
-                            tooltip: l10n.t('abort_game'),
-                            icon: const Icon(Icons.stop_circle_outlined),
-                            onPressed: () => _run(controller.abortGame),
+                        if (isHost && room.status == RoomStatus.playing) ...<Widget>[
+                          const SizedBox(width: 8),
+                          GlassIconButton(
+                            icon: Icons.stop_circle_outlined,
+                            color: AppColors.danger,
+                            onTap: () => _run(controller.abortGame),
                           ),
+                        ],
                       ],
                     ),
-                    body: _RoomBody(
-                      roomId: widget.roomId,
-                      state: state,
-                      controller: controller,
-                      isHost: isHost,
+                    Expanded(
+                      child: _RoomBody(
+                        roomId: widget.roomId,
+                        state: state,
+                        controller: controller,
+                        isHost: isHost,
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            );
-          },
+                  ],
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -179,6 +183,54 @@ class _RoomBody extends ConsumerWidget {
   }
 }
 
+/// شريط تبويب زجاجي بمؤشّر متدرّج — يحلّ محلّ [TabBar] الافتراضي.
+class GlassTabBar extends StatelessWidget {
+  const GlassTabBar({super.key, required this.tabs, this.accent});
+
+  final List<String> tabs;
+  final Color? accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color tone = accent ?? AppColors.gold;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.white.op(0.06) : AppColors.white.op(0.55),
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(
+            color: (isDark ? AppColors.white : AppColors.coffee).op(0.12)),
+      ),
+      child: TabBar(
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.tab,
+        splashBorderRadius: BorderRadius.circular(100),
+        indicator: BoxDecoration(
+          gradient: AppGradients.from(tone),
+          borderRadius: BorderRadius.circular(100),
+          boxShadow: AppTheme.glow(tone, opacity: 0.34, blur: 16, y: 5),
+        ),
+        labelColor: AppColors.white,
+        unselectedLabelColor: muted,
+        labelStyle: const TextStyle(
+            fontFamily: AppTheme.fontBody, fontSize: 13.5, fontWeight: FontWeight.w800),
+        unselectedLabelStyle: const TextStyle(
+            fontFamily: AppTheme.fontBody, fontSize: 13.5, fontWeight: FontWeight.w700),
+        tabs: tabs
+            .map((String t) => Tab(
+                  height: 38,
+                  child: Text(t, maxLines: 1, overflow: TextOverflow.ellipsis),
+                ))
+            .toList(),
+      ),
+    );
+  }
+}
+
 /// غرفة الانتظار: قائمة اللاعبين + الجاهزية + الدردشة + بدء المباراة.
 class WaitingRoomView extends ConsumerWidget {
   const WaitingRoomView({
@@ -197,10 +249,14 @@ class WaitingRoomView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
     final Room room = state.room!;
     final List<RoomPlayer> players = state.activePlayers;
     final RoomPlayer? me = state.playerById(controller.myId);
     final bool canStart = state.canStart;
+    final int readyCount = players.where((RoomPlayer p) => p.isReady).length;
 
     Future<void> run(Future<void> Function() action) async {
       try {
@@ -216,35 +272,84 @@ class WaitingRoomView extends ConsumerWidget {
       length: 2,
       child: Column(
         children: <Widget>[
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Column(
-              children: <Widget>[
-                Text(l10n.t('share_code_hint'),
-                    style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 6),
-                Text(room.code,
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+          // ── بطاقة رمز الغرفة ──────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+            child: FadeInUp(
+              child: GlassCard(
+                padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+                glowColor: AppColors.gold,
+                onTap: () async {
+                  await Clipboard.setData(ClipboardData(text: room.code));
+                  if (context.mounted) context.showSnack(l10n.t('copied'));
+                },
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      l10n.t('share_code_hint'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 12, fontWeight: FontWeight.w600, color: muted),
+                    ),
+                    const SizedBox(height: 10),
+                    ShaderMask(
+                      shaderCallback: (Rect r) => AppGradients.gold.createShader(r),
+                      child: Text(
+                        room.code,
+                        textDirection: TextDirection.ltr,
+                        style: const TextStyle(
+                          fontFamily: AppTheme.fontDisplay,
+                          fontSize: 40,
+                          height: 1.1,
+                          fontWeight: FontWeight.w900,
                           letterSpacing: 10,
-                          color: Theme.of(context).colorScheme.primary,
-                        )),
-                const SizedBox(height: 6),
-                Text('${players.length}/${room.maxPlayers} ${l10n.t('players')}  •  '
-                    '${l10n.t('host')}: ${state.playerById(room.hostId)?.nickname ?? '—'}'),
-              ],
+                          color: AppColors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      alignment: WrapAlignment.center,
+                      children: <Widget>[
+                        GlassPill(
+                          dense: true,
+                          icon: Icons.groups_2_outlined,
+                          label: '${players.length}/${room.maxPlayers}',
+                          color: AppColors.green,
+                        ),
+                        GlassPill(
+                          dense: true,
+                          icon: Icons.verified_outlined,
+                          label: '$readyCount ${l10n.t('ready')}',
+                          color: AppColors.gold,
+                        ),
+                        GlassPill(
+                          dense: true,
+                          icon: Icons.star_rounded,
+                          label: state.playerById(room.hostId)?.nickname ?? '—',
+                          color: AppColors.coffee,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          TabBar(tabs: <Widget>[
-            Tab(text: '${l10n.t('players')} (${players.length})'),
-            Tab(text: l10n.t('chat')),
+
+          GlassTabBar(tabs: <String>[
+            '${l10n.t('players')} (${players.length})',
+            l10n.t('chat'),
           ]),
+
           Expanded(
             child: TabBarView(
               children: <Widget>[
                 ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                   children: <Widget>[
                     ...players.map((RoomPlayer p) => PlayerTile(
                           player: p,
@@ -263,11 +368,17 @@ class WaitingRoomView extends ConsumerWidget {
                                   ),
                         )),
                     if (state.spectators.isNotEmpty) ...<Widget>[
-                      const Divider(),
                       Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(l10n.t('spectators'),
-                            style: Theme.of(context).textTheme.labelLarge),
+                        padding: const EdgeInsets.fromLTRB(4, 14, 4, 8),
+                        child: Text(
+                          l10n.t('spectators'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.4,
+                            color: muted,
+                          ),
+                        ),
                       ),
                       ...state.spectators.map((RoomPlayer p) => PlayerTile(
                             player: p,
@@ -282,41 +393,69 @@ class WaitingRoomView extends ConsumerWidget {
               ],
             ),
           ),
+
+          // ── شريط الإجراءات ────────────────────────────────
           SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: Column(
                 children: <Widget>[
-                  if (me != null && !me.isSpectator)
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => run(() => controller.setReady(!me.isReady)),
-                        icon: Icon(me.isReady ? Icons.close : Icons.check),
-                        label: Text(me.isReady ? l10n.t('cancel_ready') : l10n.t('im_ready')),
+                  Row(
+                    children: <Widget>[
+                      if (me != null && !me.isSpectator)
+                        Expanded(
+                          child: me.isReady
+                              ? GhostButton(
+                                  label: l10n.t('cancel_ready'),
+                                  icon: Icons.close_rounded,
+                                  height: 54,
+                                  onTap: () => run(() => controller.setReady(false)),
+                                )
+                              : GradientButton(
+                                  label: l10n.t('im_ready'),
+                                  icon: Icons.check_rounded,
+                                  height: 54,
+                                  colors: const <Color>[
+                                    AppColors.greenLight,
+                                    AppColors.greenDeep,
+                                  ],
+                                  onTap: () => run(() => controller.setReady(true)),
+                                ),
+                        ),
+                      if (isHost) ...<Widget>[
+                        if (me != null && !me.isSpectator) const SizedBox(width: 10),
+                        Expanded(
+                          child: canStart
+                              ? GradientButton(
+                                  label: l10n.t('start_game'),
+                                  icon: Icons.play_arrow_rounded,
+                                  height: 54,
+                                  onTap: () => run(() => controller.startGame()),
+                                )
+                              : GhostButton(
+                                  label: l10n.t('start_game'),
+                                  icon: Icons.play_arrow_rounded,
+                                  height: 54,
+                                  onTap: null,
+                                ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (!isHost)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        l10n.t('waiting_for_host'),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w600, color: muted),
                       ),
                     ),
-                  if (isHost) ...<Widget>[
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed:
-                            canStart ? () => run(() => controller.startGame()) : null,
-                        icon: const Icon(Icons.play_arrow),
-                        label: Text(l10n.t('start_game')),
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
           ),
-          if (!isHost)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(l10n.t('waiting_for_host'),
-                  style: Theme.of(context).textTheme.bodySmall),
-            ),
         ],
       ),
     );
@@ -368,10 +507,10 @@ class _PlayingView extends ConsumerWidget {
       length: 2,
       child: Column(
         children: <Widget>[
-          TabBar(tabs: <Widget>[
-            Tab(text: l10n.t('round')),
-            Tab(text: l10n.t('chat')),
-          ]),
+          GlassTabBar(
+            accent: round.isMafiaNight ? AppColors.plum : AppColors.gold,
+            tabs: <String>[l10n.t('round'), l10n.t('chat')],
+          ),
           Expanded(
             child: TabBarView(
               children: <Widget>[
@@ -400,12 +539,17 @@ class _SpectatorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
+
     return ListView(
-      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: <Widget>[
         Center(
-          child: Text(l10n.t('spectators'),
-              style: Theme.of(context).textTheme.titleLarge),
+          child: GlassPill(
+            icon: Icons.visibility_outlined,
+            label: l10n.t('spectators'),
+            color: AppColors.plum,
+          ),
         ),
         const SizedBox(height: 16),
         ...state.activePlayers.map((RoomPlayer p) => PlayerTile(
