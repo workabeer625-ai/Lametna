@@ -13,7 +13,7 @@ name: Deploy landing page
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'arena/**']
     paths: ['landing/**', '.github/workflows/landing.yml']
   workflow_dispatch:
 

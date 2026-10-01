@@ -28,6 +28,9 @@ import '../providers/auth_provider.dart';
 import '../providers/core_providers.dart';
 import '../providers/settings_provider.dart';
 
+/// يلتقط رمز الغرفة من أي رابط دعوة مهما كانت بادئة المسار.
+final RegExp _inviteRe = RegExp(r'(?:^|/)r/([A-Za-z0-9]{6})/?$');
+
 final GlobalKey<NavigatorState> _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> _shellKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
 
@@ -60,10 +63,12 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
       };
 
       // رابط دعوة: https://.../r/AB12CD أو lametna://open/r/AB12CD
+      // نقبل أي بادئة مسار (مثل /Lametna/r/AB12CD على GitHub Pages).
       // نخزّن الرمز أولًا حتى لا يضيع إن احتاج المستخدم إلى تسجيل الدخول.
-      if (path.startsWith('/r/')) {
-        final String code =
-            Validators.normalizeRoomCode(path.substring(3).split('/').first);
+      final RegExpMatch? invite =
+          _inviteRe.firstMatch(state.uri.path.isEmpty ? path : state.uri.path);
+      if (invite != null) {
+        final String code = Validators.normalizeRoomCode(invite.group(1)!);
         if (!Validators.isRoomCode(code)) return signedIn ? '/home' : '/welcome';
         unawaited(prefs.setPendingInvite(code));
         if (!localeChosen) return '/language';
@@ -109,6 +114,12 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
       // رابط الدعوة؛ المعالجة الفعلية في redirect أعلاه.
       GoRoute(
         path: '/r/:code',
+        redirect: (_, GoRouterState state) =>
+            '/join?code=${Validators.normalizeRoomCode(state.pathParameters['code'] ?? '')}',
+      ),
+      // روابط منشورة تحت مسار فرعي، مثل: /Lametna/r/AB12CD
+      GoRoute(
+        path: '/:prefix/r/:code',
         redirect: (_, GoRouterState state) =>
             '/join?code=${Validators.normalizeRoomCode(state.pathParameters['code'] ?? '')}',
       ),
