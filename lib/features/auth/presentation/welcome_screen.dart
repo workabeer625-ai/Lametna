@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/localization/app_localizations.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../core/errors/error_mapper.dart';
 import '../../../core/extensions/context_ext.dart';
 import '../../../core/widgets/design_kit.dart';
 import '../../../providers/auth_provider.dart';
@@ -29,7 +30,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           .signInAsGuest(null, ref.read(settingsProvider).locale);
       if (mounted) context.go('/profile-setup');
     } catch (e) {
-      if (mounted) context.showSnack(e.toString(), error: true);
+      if (mounted) {
+        context.showSnack(
+          ErrorMapper.map(e).localized(context.l10n.languageCode),
+          error: true,
+        );
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }

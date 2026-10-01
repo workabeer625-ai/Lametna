@@ -68,6 +68,30 @@ class ErrorMapper {
             messageAr: 'هذا البريد مسجل بالفعل.',
             messageEn: 'This email is already registered.');
       }
+      // الدخول كضيف يتطلب تفعيل Anonymous sign-ins في لوحة Supabase.
+      if (m.contains('anonymous')) {
+        return const AppException('ANON_DISABLED',
+            messageAr: 'الدخول كضيف غير مفعّل حاليًا. '
+                'أنشئ حسابًا بالبريد الإلكتروني، أو فعّل «Anonymous sign-ins» '
+                'من لوحة Supabase.',
+            messageEn: 'Guest sign-in is disabled. Create an account with your '
+                'email, or enable "Anonymous sign-ins" in the Supabase dashboard.');
+      }
+      if (m.contains('email not confirmed') || m.contains('not confirmed')) {
+        return const AppException('EMAIL_NOT_CONFIRMED',
+            messageAr: 'فعّل بريدك الإلكتروني أولًا من رسالة التأكيد المرسلة إليك.',
+            messageEn: 'Confirm your email first using the link we sent you.');
+      }
+      if (m.contains('signups not allowed') || m.contains('signup is disabled')) {
+        return const AppException('SIGNUP_DISABLED',
+            messageAr: 'إنشاء الحسابات معطّل حاليًا من إعدادات الخادم.',
+            messageEn: 'Sign-ups are currently disabled on the server.');
+      }
+      if (m.contains('rate limit') || m.contains('too many requests')) {
+        return const AppException('AUTH_RATE_LIMITED',
+            messageAr: 'محاولات كثيرة خلال وقت قصير. انتظر دقيقة ثم أعد المحاولة.',
+            messageEn: 'Too many attempts. Wait a minute and try again.');
+      }
       return AppException('AUTH_ERROR',
           messageAr: 'تعذر إتمام العملية: ${error.message}',
           messageEn: error.message, cause: error);
