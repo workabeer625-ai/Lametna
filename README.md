@@ -206,6 +206,7 @@ supabase/
   seed.sql        الألعاب، الدول، الصور الرمزية، الأسئلة، الشارات
   tests/          اختبارات RLS وقواعد اللعب
 admin/            لوحة تحكم ثابتة (Vercel / Netlify / Cloudflare Pages)
+landing/          صفحة روابط الدعوة /r/CODE (موقع ثابت مجاني)
 tool/             bootstrap.sh · android_overrides/ · generate_avatars.py · branding/
 test/             وحدات + واجهات        integration_test/  مسار كامل حقيقي
 docs/             التوثيق الكامل
@@ -254,6 +255,7 @@ flowchart LR
 | [SECURITY.md](docs/SECURITY.md) | نموذج التهديد، RLS، الإشراف، الخصوصية |
 | [DEPLOYMENT.md](docs/DEPLOYMENT.md) | من الصفر إلى متجر Play |
 | [SHARE_APK.md](docs/SHARE_APK.md) | بناء APK ومشاركته مباشرة بلا متجر |
+| [DEEP_LINKS.md](docs/DEEP_LINKS.md) | روابط الدعوة: ضغطة واحدة تفتح التطبيق وتدخل الغرفة |
 | [FREE_HOSTING.md](docs/FREE_HOSTING.md) | البقاء ضمن المجاني ومتى تحتاج ترقية |
 
 ## الخصوصية والأمان

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +22,10 @@ import '../features/rooms/presentation/join_room_screen.dart';
 import '../features/rooms/presentation/public_rooms_screen.dart';
 import '../features/rooms/presentation/room_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../core/storage/local_prefs.dart';
+import '../core/utils/validators.dart';
 import '../providers/auth_provider.dart';
+import '../providers/core_providers.dart';
 import '../providers/settings_provider.dart';
 
 final GlobalKey<NavigatorState> _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -46,12 +51,26 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
     redirect: (BuildContext context, GoRouterState state) {
       final bool localeChosen = ref.read(settingsProvider).localeChosen;
       final bool signedIn = ref.read(isSignedInProvider);
+      final LocalPrefs prefs = ref.read(localPrefsProvider);
       final String path = state.matchedLocation;
 
       const Set<String> publicPaths = <String>{
         '/', '/language', '/welcome', '/sign-in', '/sign-up',
         '/privacy', '/terms', '/rules', '/no-internet',
       };
+
+      // رابط دعوة: https://.../r/AB12CD أو lametna://open/r/AB12CD
+      // نخزّن الرمز أولًا حتى لا يضيع إن احتاج المستخدم إلى تسجيل الدخول.
+      if (path.startsWith('/r/')) {
+        final String code =
+            Validators.normalizeRoomCode(path.substring(3).split('/').first);
+        if (!Validators.isRoomCode(code)) return signedIn ? '/home' : '/welcome';
+        unawaited(prefs.setPendingInvite(code));
+        if (!localeChosen) return '/language';
+        if (!signedIn) return '/welcome';
+        unawaited(prefs.setPendingInvite(null));
+        return '/join?code=$code';
+      }
 
       if (path == '/') {
         if (!localeChosen) return '/language';
@@ -60,6 +79,12 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
       if (!localeChosen && path != '/language') return '/language';
       if (!signedIn && !publicPaths.contains(path)) return '/welcome';
       if (signedIn && <String>{'/welcome', '/sign-in', '/sign-up'}.contains(path)) {
+        // دعوة وصلت قبل تسجيل الدخول؟ أكمل إليها مباشرة بعد الدخول.
+        final String? pending = prefs.pendingInvite;
+        if (pending != null && Validators.isRoomCode(pending)) {
+          unawaited(prefs.setPendingInvite(null));
+          return '/join?code=$pending';
+        }
         return '/home';
       }
       return null;
@@ -80,6 +105,12 @@ final Provider<GoRouter> routerProvider = Provider<GoRouter>((Ref ref) {
         path: '/create-room',
         builder: (_, GoRouterState state) =>
             CreateRoomScreen(initialGameKey: state.uri.queryParameters['game']),
+      ),
+      // رابط الدعوة؛ المعالجة الفعلية في redirect أعلاه.
+      GoRoute(
+        path: '/r/:code',
+        redirect: (_, GoRouterState state) =>
+            '/join?code=${Validators.normalizeRoomCode(state.pathParameters['code'] ?? '')}',
       ),
       GoRoute(
         path: '/join',

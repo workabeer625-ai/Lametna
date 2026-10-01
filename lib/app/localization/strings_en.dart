@@ -295,12 +295,15 @@ const Map<String, String> enStrings = <String, String>{
   'invite_friends': 'Invite friends',
   'invite_title': 'Invite your friends',
   'invite_how':
-      'Copy the invite and paste it in WhatsApp or Telegram, or just send the code.',
+      'Send the link to your friends - one tap opens the app and joins the room.',
+  'share_invite': 'Share link',
+  'copy_link': 'Copy link',
+  'invite_link_line': 'Tap to join instantly:\n{url}',
   'copy_invite': 'Copy invite message',
   'copy_code': 'Copy code only',
   'invite_copied': 'Invite copied - paste it in your chat',
   'invite_message':
-      'Come play Lametna! 🎲\nRoom code: {code}\nOpen the app -> Join with code -> enter the code.',
+      'Come play Lametna! 🎲\nRoom code: {code}',
   'invite_download': 'Get the app here: {url}',
 
   // ── Support ──

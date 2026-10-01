@@ -26,6 +26,23 @@ class Env {
 
   static bool get hasDownloadUrl => downloadUrl.startsWith('http');
 
+  /// أصل روابط الدعوة القابلة للنقر (صفحة الهبوط في مجلد landing/).
+  /// اضبطه في env.json: "APP_LINK_BASE": "https://lametna.vercel.app"
+  /// الرابط الناتج: https://lametna.vercel.app/r/AB12CD
+  static const String linkBase =
+      String.fromEnvironment('APP_LINK_BASE', defaultValue: '');
+
+  static bool get hasLinkBase => linkBase.startsWith('http');
+
+  /// رابط دعوة غرفة جاهز للمشاركة، أو سلسلة فارغة إن لم يُضبط APP_LINK_BASE.
+  static String roomLink(String code) {
+    if (!hasLinkBase) return '';
+    final String base = linkBase.endsWith('/')
+        ? linkBase.substring(0, linkBase.length - 1)
+        : linkBase;
+    return '$base/r/$code';
+  }
+
   static bool get isConfigured =>
       supabaseUrl.startsWith('https://') && supabaseAnonKey.length > 20;
 

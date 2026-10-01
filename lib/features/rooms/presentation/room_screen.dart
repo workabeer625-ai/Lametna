@@ -11,6 +11,7 @@ import '../../../core/extensions/context_ext.dart';
 import '../../../core/network/env.dart';
 import '../../../core/widgets/connection_banner.dart';
 import '../../../core/widgets/design_kit.dart';
+import '../../../services/share_service.dart';
 import '../../../core/widgets/state_views.dart';
 import '../../../models/models.dart';
 import '../../../providers/room_provider.dart';
@@ -571,9 +572,19 @@ class _SpectatorView extends StatelessWidget {
 /// نص الدعوة الجاهز للصق في واتساب/تيليجرام.
 String buildInviteText(BuildContext context, String code) {
   final AppLocalizations l10n = context.l10n;
-  final String body = l10n.t('invite_message').replaceAll('{code}', code);
-  if (!Env.hasDownloadUrl) return body;
-  return '$body\n${l10n.t('invite_download').replaceAll('{url}', Env.downloadUrl)}';
+  final StringBuffer buf =
+      StringBuffer(l10n.t('invite_message').replaceAll('{code}', code));
+
+  final String link = Env.roomLink(code);
+  if (link.isNotEmpty) {
+    buf.write('\n\n');
+    buf.write(l10n.t('invite_link_line').replaceAll('{url}', link));
+  }
+  if (Env.hasDownloadUrl) {
+    buf.write('\n');
+    buf.write(l10n.t('invite_download').replaceAll('{url}', Env.downloadUrl));
+  }
+  return buf.toString();
 }
 
 /// ورقة «دعوة أصدقاء»: الرمز بخط كبير + نسخ الدعوة كاملة أو الرمز وحده.
@@ -663,15 +674,64 @@ Future<void> showInviteSheet(BuildContext context, String code) {
                       ),
                     ),
                   ),
+                  if (Env.roomLink(code).isNotEmpty) ...<Widget>[
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(Icons.link_rounded, size: 15, color: muted),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            Env.roomLink(code),
+                            textAlign: TextAlign.center,
+                            textDirection: TextDirection.ltr,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: muted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                   const SizedBox(height: 18),
+                  // المشاركة عبر ورقة النظام: واتساب، تيليجرام، أو أي تطبيق.
                   GradientButton(
-                    label: l10n.t('copy_invite'),
-                    icon: Icons.content_copy_rounded,
+                    label: l10n.t('share_invite'),
+                    icon: Icons.ios_share_rounded,
                     height: 54,
                     onTap: () async {
                       // نستعمل سياق الشاشة (لا سياق الورقة) حتى تظهر الرسالة
                       // بعد إغلاق الورقة بأمان.
                       final String text = buildInviteText(context, code);
+                      if (sheetContext.mounted) Navigator.pop(sheetContext);
+                      final bool shared = await ShareService.shareText(
+                        text,
+                        title: l10n.t('invite_title'),
+                      );
+                      if (shared) return;
+                      await Clipboard.setData(ClipboardData(text: text));
+                      if (context.mounted) {
+                        context.showSnack(l10n.t('invite_copied'));
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  GhostButton(
+                    label: Env.roomLink(code).isNotEmpty
+                        ? l10n.t('copy_link')
+                        : l10n.t('copy_invite'),
+                    icon: Icons.content_copy_rounded,
+                    height: 50,
+                    onTap: () async {
+                      final String link = Env.roomLink(code);
+                      final String text = link.isNotEmpty
+                          ? link
+                          : buildInviteText(context, code);
                       await Clipboard.setData(ClipboardData(text: text));
                       if (sheetContext.mounted) Navigator.pop(sheetContext);
                       if (context.mounted) {

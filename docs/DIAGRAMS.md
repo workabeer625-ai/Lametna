@@ -1265,6 +1265,7 @@ flowchart TB
 
     CREATE["/create-room?game="]
     JOIN["/join?code="]
+    INVITE["/r/:code · رابط دعوة"]
     PUBLIC["/public-rooms"]
     ROOM["/room/:id"]
     SETTINGS["/settings"]
@@ -1280,6 +1281,7 @@ flowchart TB
     SIGNIN & SIGNUP --> SETUP --> HOME
     WELCOME --> PRIVACY & TERMS & RULES
 
+    INVITE -->|"redirect"| JOIN
     HOME --> CREATE & JOIN & PUBLIC
     GAMES --> CREATE & PUBLIC
     CREATE & JOIN & PUBLIC --> ROOM
@@ -1292,6 +1294,10 @@ flowchart TB
 ```
 
 <div dir="rtl">
+
+**روابط الدعوة:** `https://<نطاقك>/r/AB12CD` و `lametna://open/r/AB12CD` كلاهما يصل إلى
+`/r/:code` فيحوّل إلى `/join?code=`؛ وإن لم يكن المستخدم مسجّلًا يُحفظ الرمز ويُستأنف بعد الدخول
+(التفاصيل في [DEEP_LINKS.md](DEEP_LINKS.md)).
 
 **المسارات العامة (بلا تسجيل دخول):** `/` · `/language` · `/welcome` · `/sign-in` ·
 `/sign-up` · `/privacy` · `/terms` · `/rules` · `/no-internet`.

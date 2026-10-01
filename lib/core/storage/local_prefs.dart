@@ -14,6 +14,7 @@ class LocalPrefs {
   static const String _kOnboarded = 'onboarded';
   static const String _kLastRoomCode = 'last_room_code';
   static const String _kNotifications = 'notifications_enabled';
+  static const String _kPendingInvite = 'pending_invite_code';
 
   static Future<LocalPrefs> create() async =>
       LocalPrefs(await SharedPreferences.getInstance());
@@ -37,6 +38,12 @@ class LocalPrefs {
   Future<void> setLastRoomCode(String? value) => value == null
       ? _prefs.remove(_kLastRoomCode)
       : _prefs.setString(_kLastRoomCode, value);
+
+  /// رمز غرفة وصل عبر رابط دعوة قبل تسجيل الدخول؛ يُستهلك بعد الدخول.
+  String? get pendingInvite => _prefs.getString(_kPendingInvite);
+  Future<void> setPendingInvite(String? value) => value == null
+      ? _prefs.remove(_kPendingInvite)
+      : _prefs.setString(_kPendingInvite, value);
 
   bool get notificationsEnabled => _prefs.getBool(_kNotifications) ?? true;
   Future<void> setNotificationsEnabled(bool v) => _prefs.setBool(_kNotifications, v);
