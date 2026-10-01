@@ -301,4 +301,15 @@ const Map<String, String> enStrings = <String, String>{
   'invite_message':
       'Come play Lametna! 🎲\nRoom code: {code}\nOpen the app -> Join with code -> enter the code.',
   'invite_download': 'Get the app here: {url}',
+
+  // ── Support ──
+  'contact_support': 'Contact support',
+  'support_how': 'Email us at the address below and we will reply shortly.',
+  'open_mail_app': 'Open mail app',
+  'copy_email': 'Copy email',
+  'email_copied': 'Email copied',
+  'support_copied': 'Email and message copied - paste them in your mail app',
+  'support_subject_help': 'Lametna - question / help request',
+  'support_subject_bug': 'Lametna - bug report',
+  'support_body_hint': 'Write your message here in detail:',
 };

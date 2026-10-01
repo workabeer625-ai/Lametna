@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/localization/app_localizations.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/widgets/design_kit.dart';
@@ -121,6 +122,9 @@ class PrivacyScreen extends StatelessWidget {
               ('الأمان',
                   'البيانات محمية بسياسات Row Level Security على مستوى قاعدة البيانات، '
                   'ولا يمكن لأي لاعب قراءة بيانات غرفة ليس عضوًا فيها.'),
+              ('التواصل معنا',
+                  'لأي استفسار عن خصوصيتك، أو طلب حذف بياناتك، أو الإبلاغ عن مشكلة أو إساءة، '
+                  'راسلنا على: ${AppConstants.supportEmail}'),
             ]
           : const <(String, String)>[
               ('What we collect',
@@ -137,6 +141,9 @@ class PrivacyScreen extends StatelessWidget {
               ('Security',
                   'Row Level Security protects every table. A player can never read data '
                   'from a room they are not a member of.'),
+              ('Contact us',
+                  'For any privacy question, a data deletion request, or to report a problem '
+                  'or abuse, email us at: ${AppConstants.supportEmail}'),
             ],
     );
   }

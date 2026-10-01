@@ -314,4 +314,15 @@ const Map<String, String> arStrings = <String, String>{
   'invite_copied': 'تم نسخ الدعوة — الصقها في محادثة أصدقائك',
   'invite_message': 'تعال نلعب «لمّتنا»! 🎲\nرمز الغرفة: {code}\nافتح التطبيق ← انضمام بكود ← اكتب الرمز.',
   'invite_download': 'حمّل التطبيق من هنا: {url}',
+
+  // ── الدعم والتواصل ──
+  'contact_support': 'تواصل مع الدعم',
+  'support_how': 'راسلنا على البريد التالي وسنرد عليك في أقرب وقت.',
+  'open_mail_app': 'فتح تطبيق البريد',
+  'copy_email': 'نسخ البريد',
+  'email_copied': 'تم نسخ البريد',
+  'support_copied': 'تم نسخ البريد والرسالة — الصقها في بريدك',
+  'support_subject_help': 'لمّتنا — استفسار / طلب مساعدة',
+  'support_subject_bug': 'لمّتنا — بلاغ عن مشكلة',
+  'support_body_hint': 'اكتب رسالتك هنا بالتفصيل:',
 };

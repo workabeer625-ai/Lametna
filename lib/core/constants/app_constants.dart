@@ -2,12 +2,16 @@
 class AppConstants {
   const AppConstants._();
 
+  /// رقم النسخة — حدّثه مع كل إصدار (مطابق لـ pubspec.yaml).
+  static const String appVersion = '1.0.0';
+
   static const String appNameAr = 'لمّتنا';
   static const String appNameEn = 'Lametna';
   static const String sloganAr = 'لمّتنا تجمعنا… واللعبة تبدأ هنا';
   static const String sloganEn = 'Lametna brings us together… the game starts here';
 
-  static const String supportEmail = 'support@lametna.app';
+  /// بريد الدعم الذي تصل إليه بلاغات المستخدمين ورسائلهم.
+  static const String supportEmail = 'beeroali839@gmail.com';
   static const String privacyUrl = 'https://lametna.app/privacy';
   static const String termsUrl = 'https://lametna.app/terms';
 

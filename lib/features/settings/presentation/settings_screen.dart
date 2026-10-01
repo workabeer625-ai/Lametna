@@ -12,6 +12,7 @@ import '../../../core/widgets/design_kit.dart';
 import '../../../models/models.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/settings_provider.dart';
+import 'support_sheet.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -129,23 +130,34 @@ class SettingsScreen extends ConsumerWidget {
                       delay: 140,
                       children: <Widget>[
                         _Row(
-                          icon: Icons.mail_outline_rounded,
+                          icon: Icons.support_agent_rounded,
                           color: AppColors.gold,
-                          title: l10n.t('support'),
+                          title: l10n.t('contact_support'),
                           subtitle: AppConstants.supportEmail,
+                          chevron: true,
+                          onTap: () => showSupportSheet(
+                            context,
+                            userId: profile?.id,
+                          ),
                         ),
                         _Row(
                           icon: Icons.bug_report_outlined,
                           color: AppColors.rose,
                           title: l10n.t('report_problem'),
                           subtitle: AppConstants.supportEmail,
+                          chevron: true,
+                          onTap: () => showSupportSheet(
+                            context,
+                            isBugReport: true,
+                            userId: profile?.id,
+                          ),
                         ),
                         _Row(
                           icon: Icons.info_outline_rounded,
                           color: AppColors.latte,
                           title: l10n.t('about'),
                           subtitle:
-                              '${AppConstants.appNameAr} — ${AppConstants.sloganAr}',
+                              '${AppConstants.appNameAr} ${AppConstants.appVersion} — ${AppConstants.sloganAr}',
                         ),
                       ],
                     ),
