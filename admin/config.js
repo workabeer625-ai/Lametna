@@ -5,8 +5,8 @@
 //  الصلاحيات تُفرض من RLS ومن دالة require_admin() في قاعدة البيانات.
 // ============================================================
 window.LAMETNA_CONFIG = {
-  SUPABASE_URL: 'https://YOUR-PROJECT-REF.supabase.co',
-  SUPABASE_ANON_KEY: 'YOUR_PUBLIC_ANON_KEY',
+  SUPABASE_URL: 'https://lvlrhbsafzepnqawlmud.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_wF1oNbuK5nyNwrTeZ3NVBw_C-b3SDg4',
 
   // حدود الخطة المجانية لعرض شريط الاستهلاك (قابلة للتعديل)
   FREE_TIER: {

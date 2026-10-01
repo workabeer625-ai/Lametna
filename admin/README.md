@@ -19,14 +19,17 @@ python3 -m http.server 4321
 # ثم افتح http://localhost:4321
 ```
 
-## ترقية حساب إلى مشرف
+## ترقية حساب إلى مدير أو مشرف
 
-من SQL Editor في Supabase:
+1. أنشئ الحساب من **Authentication → Users → Add user** (فعّل ✅ Auto Confirm User).
+2. الصق محتوى **[`supabase/APPLY_IN_SQL_EDITOR.sql`](../supabase/APPLY_IN_SQL_EDITOR.sql)**
+   في **SQL Editor** وشغّله بعد تعديل البريد في `v_email`.
 
-```sql
-update public.profiles set role = 'admin'
- where id = (select id from auth.users where email = 'you@example.com');
-```
+> ⚠️ `update public.profiles set role = 'admin'` وحده **لا يكفي**: المشغّل
+> `profiles_protect_stats` يجمّد عمود `role` عمدًا ويعيده إلى قيمته القديمة.
+> لذلك يعطّله السكربت مؤقتًا ثم يعيد تفعيله.
+
+لترقية مشرف بدل مدير، غيّر `'admin'` إلى `'moderator'` داخل السكربت.
 
 ## النشر المجاني
 
