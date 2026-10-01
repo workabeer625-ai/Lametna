@@ -1,48 +1,58 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Flutter / Dart
 .dart_tool/
-.flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
-/build/
-/coverage/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+**/android/**/GeneratedPluginRegistrant.java
+*.iml
+.idea/
+.vscode/
+coverage/
 
-# Symbolication related
-app.*.symbols
+# ملاحظة: مجلدات المنصات (android/ ios/ …) مُتتبَّعة في Git.
+# استخدم tool/bootstrap.sh لتوليدها أول مرة وتطبيق تخصيصات لمّتنا عليها.
 
-# Obfuscation related
-app.*.map.json
+# Android
+android/.gradle/
+android/local.properties
+android/key.properties
+android/app/upload-keystore.jks
+android/app/*.jks
+**/*.keystore
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# iOS / macOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+**/DerivedData/
+.DS_Store
 
-# Widget Preview related
-.widget_preview/
+# Env & secrets
+env.json
+*.jks
+*.keystore
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Supabase CLI
+supabase/.temp/
+supabase/.branches/
+
+# Admin
+admin/node_modules/
+admin/.vercel/
+
+# Fonts fetched by tool/fetch_fonts.sh (optional offline mode)
+assets/fonts/
+
+# ملف SQL مدموج يُولَّد محليًا للصق في Supabase — لا يُرفع
+supabase_all_in_one.sql
+
+# Kotlin build logs
+android/.kotlin/

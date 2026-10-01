@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#F7F0E5</color>
+    <color name="lametna_coffee">#6F4E37</color>
+    <color name="lametna_green">#1F6F5B</color>
+    <color name="lametna_gold">#D9A441</color>
+    <color name="lametna_beige">#F7F0E5</color>
+    <color name="lametna_dark">#121010</color>
+</resources>

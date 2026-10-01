@@ -1,0 +1,44 @@
+# ============================================================
+#  نشر صفحة الدعوة (landing/) على GitHub Pages — مجانًا وتلقائيًا
+#
+#  تفعيل لمرة واحدة:
+#    Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+#
+#  بعدها كل دفعة إلى main تُحدّث الصفحة على:
+#    https://<USER>.github.io/<REPO>/
+#  ورابط الدعوة:
+#    https://<USER>.github.io/<REPO>/r/AB12CD
+# ============================================================
+name: Deploy landing page
+
+on:
+  push:
+    branches: [main, 'arena/**']
+    paths: ['landing/**', '.github/workflows/landing.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # GitHub Pages لا يخدم /r/CODE مباشرة، لذا 404.html هو نفسه صفحة الدعوة.
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: landing
+      - id: deployment
+        uses: actions/deploy-pages@v4
