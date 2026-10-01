@@ -9,6 +9,12 @@
 
 ## النشر
 
+**الأسهل (GitHub Pages):** Settings → Pages → Source: **GitHub Actions**، ثم ادفع إلى `main`.
+الـ workflow `.github/workflows/landing.yml` ينشر هذا المجلد تلقائيًا على
+`https://workabeer625-ai.github.io/Lametna/`.
+
+**أو يدويًا:**
+
 ```bash
 cd landing
 npx vercel deploy --prod          # أو

@@ -60,9 +60,27 @@ sequenceDiagram
 
 ---
 
-## 2. الإعداد — ٣ خطوات
+## 2. الإعداد
 
-### الخطوة ١: انشر مجلد `landing/` (مجاني)
+### ⭐ الأسهل: GitHub Pages (بلا حساب جديد ولا أوامر)
+
+1. من صفحة المستودع على GitHub: **Settings → Pages → Build and deployment → Source** اختر **GitHub Actions** واحفظ.
+2. ادمج هذا الفرع في `main` (أو ادفع إليه)؛ سينشر الـ workflow `.github/workflows/landing.yml` مجلد `landing/` تلقائيًا.
+3. نطاقك سيكون: `https://workabeer625-ai.github.io/Lametna/`
+   ورابط الدعوة: `https://workabeer625-ai.github.io/Lametna/r/AB12CD`
+4. في `env.json` أضف:
+
+   ```json
+   "APP_LINK_BASE": "https://workabeer625-ai.github.io/Lametna"
+   ```
+
+5. أعد بناء التطبيق. القيم في `android/app/src/main/res/values/strings.xml` مضبوطة مسبقًا على هذا النطاق.
+
+> على GitHub Pages لا يمكن توثيق App Links (لأن `assetlinks.json` يجب أن يكون في جذر النطاق،
+> وهو مملوك لـ github.io). النتيجة: الرابط يفتح الصفحة لجزء من الثانية ثم ينتقل إلى التطبيق تلقائيًا.
+> إن أردت فتحًا فوريًا بلا أي وميض للمتصفح، استعمل Vercel أدناه مع الخطوة ٣.
+
+### الخطوة ١ (البديل): انشر مجلد `landing/` على Vercel (مجاني)
 
 اختر منصّة واحدة:
 
@@ -84,10 +102,11 @@ npx wrangler pages deploy . --project-name lametna
 
 ### الخطوة ٢: اربط التطبيق بالنطاق
 
-1. في `android/app/src/main/res/values/strings.xml` ضع نطاقك:
+1. في `android/app/src/main/res/values/strings.xml` ضع نطاقك ومساره:
 
    ```xml
    <string name="app_link_host" translatable="false">lametna.vercel.app</string>
+   <string name="app_link_path_prefix" translatable="false">/r/</string>
    ```
 
 2. في `env.json` أضف السطر:

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">لمّتنا</string>
-    <!-- مضيف روابط الدعوة؛ غيّره إلى نطاق صفحة الهبوط عندك
-         (landing/ منشورة على Vercel أو Netlify أو Cloudflare Pages). -->
-    <string name="app_link_host" translatable="false">lametna.vercel.app</string>
+    <!-- نطاق صفحة الدعوة المنشورة (مجلد landing/).
+         GitHub Pages:  workabeer625-ai.github.io  +  prefix = /Lametna/r/
+         Vercel:        lametna.vercel.app         +  prefix = /r/           -->
+    <string name="app_link_host" translatable="false">workabeer625-ai.github.io</string>
+    <string name="app_link_path_prefix" translatable="false">/Lametna/r/</string>
 </resources>

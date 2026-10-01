@@ -57,7 +57,7 @@
                 <data
                     android:scheme="https"
                     android:host="@string/app_link_host"
-                    android:pathPrefix="/r/" />
+                    android:pathPrefix="@string/app_link_path_prefix" />
             </intent-filter>
 
             <intent-filter>
