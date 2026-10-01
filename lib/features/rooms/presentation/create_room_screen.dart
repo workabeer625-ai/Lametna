@@ -9,9 +9,11 @@ import '../../../core/errors/error_mapper.dart';
 import '../../../core/extensions/context_ext.dart';
 import '../../../core/widgets/design_kit.dart';
 import '../../../models/models.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/catalog_provider.dart';
 import '../../../providers/core_providers.dart';
 import '../../../providers/settings_provider.dart';
+import '../../auth/presentation/upgrade_account_sheet.dart';
 
 class CreateRoomScreen extends ConsumerStatefulWidget {
   const CreateRoomScreen({super.key, this.initialGameKey});
@@ -74,6 +76,11 @@ class _CreateRoomScreenState extends ConsumerState<CreateRoomScreen> {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
     final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
+    // ── بوابة الضيف: إنشاء الغرف يتطلب حسابًا كاملًا ──
+    if (ref.watch(isGuestProvider)) {
+      return _GuestWall(accent: AppColors.green);
+    }
 
     final List<GameDef> games = ref.watch(gamesProvider).valueOrNull ?? <GameDef>[];
     _gameKey ??= games.isNotEmpty ? games.first.key : null;
@@ -467,6 +474,107 @@ class _SliderRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// تُعرض للضيف بدل نموذج إنشاء الغرفة: إمّا يُكمل حسابه أو ينضم بكود.
+class _GuestWall extends StatelessWidget {
+  const _GuestWall({required this.accent});
+
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+    final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: AuroraBackground(
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: <Widget>[
+              ScreenHeader(
+                title: l10n.t('create_room'),
+                accent: accent,
+                onBack: () => context.pop(),
+              ),
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(22, 10, 22, 30),
+                    child: FadeInUp(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Container(
+                            width: 76,
+                            height: 76,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              gradient: AppGradients.gold,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: AppTheme.glow(AppColors.gold,
+                                  opacity: 0.32, blur: 26, y: 10),
+                            ),
+                            child: const Icon(Icons.lock_person_rounded,
+                                size: 36, color: AppColors.espresso),
+                          ),
+                          const SizedBox(height: 18),
+                          Text(
+                            l10n.t('guest_limited_title'),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: AppTheme.fontDisplay,
+                              fontSize: 21,
+                              height: 1.35,
+                              fontWeight: FontWeight.w900,
+                              color: ink,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            l10n.t('guest_limited_body'),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 13.5,
+                                height: 1.7,
+                                fontWeight: FontWeight.w600,
+                                color: muted),
+                          ),
+                          const SizedBox(height: 24),
+                          GradientButton(
+                            label: l10n.t('upgrade_cta'),
+                            icon: Icons.workspace_premium_rounded,
+                            height: 56,
+                            colors: const <Color>[
+                              AppColors.greenLight,
+                              AppColors.greenDeep,
+                            ],
+                            onTap: () => showUpgradeAccountSheet(context),
+                          ),
+                          const SizedBox(height: 10),
+                          GhostButton(
+                            label: l10n.t('join_by_code'),
+                            icon: Icons.vpn_key_outlined,
+                            height: 52,
+                            onTap: () => context.pushReplacement('/join'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

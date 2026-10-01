@@ -11,6 +11,7 @@ import '../../../core/widgets/state_views.dart';
 import '../../../models/models.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/catalog_provider.dart';
+import '../../auth/presentation/upgrade_account_sheet.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -88,6 +89,8 @@ class _ProfileBody extends ConsumerWidget {
         ref.watch(achievementsProvider(profile.id));
     final List<Country> countries =
         ref.watch(countriesProvider).valueOrNull ?? <Country>[];
+    final bool isGuest = ref.watch(isGuestProvider);
+
     final Country? country = profile.countryCode == null
         ? null
         : countries.where((Country c) => c.code == profile.countryCode).firstOrNull;
@@ -140,18 +143,73 @@ class _ProfileBody extends ConsumerWidget {
                             '${country.flagEmoji} ${country.name(l10n.languageCode)}',
                         color: AppColors.green,
                       ),
-                    if (profile.isGuest)
+                    if (isGuest)
                       GlassPill(
                         dense: true,
                         icon: Icons.person_outline_rounded,
-                        label: l10n.t('guest_mode'),
-                        color: AppColors.coffee,
+                        label: l10n.t('guest_badge'),
+                        color: AppColors.amber,
                       ),
                   ],
                 ),
               ],
             ),
           ),
+
+          // ── دعوة الضيف لإكمال حسابه ────────────────────────
+          if (isGuest) ...<Widget>[
+            const SizedBox(height: 18),
+            FadeInUp(
+              delay: const Duration(milliseconds: 60),
+              child: GlassCard(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                glowColor: AppColors.green,
+                onTap: () => showUpgradeAccountSheet(context),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 44,
+                      height: 44,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.green,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(Icons.workspace_premium_rounded,
+                          size: 22, color: AppColors.white),
+                    ),
+                    const SizedBox(width: 13),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            l10n.t('upgrade_title'),
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w900,
+                                color: ink),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            l10n.t('upgrade_body'),
+                            style: TextStyle(
+                                fontSize: 11.5,
+                                height: 1.5,
+                                fontWeight: FontWeight.w600,
+                                color: muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_left_rounded,
+                        size: 22, color: muted.op(0.6)),
+                  ],
+                ),
+              ),
+            ),
+          ],
 
           // ── بطاقة المستوى ──────────────────────────────────
           const SizedBox(height: 20),

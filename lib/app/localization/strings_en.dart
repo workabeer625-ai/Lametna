@@ -23,7 +23,8 @@ const Map<String, String> enStrings = <String, String>{
   'sign_up': 'Create account',
   'sign_out': 'Sign out',
   'guest_mode': 'Play as guest',
-  'guest_note': 'Play instantly without an email. Link an email later to keep your progress.',
+  'guest_note': 'Play instantly with no email: join any room with a code. '
+      'Creating your own room and keeping your points needs a full account later.',
   'email': 'Email',
   'password': 'Password',
   'confirm_password': 'Confirm password',
@@ -312,4 +313,21 @@ const Map<String, String> enStrings = <String, String>{
   'support_subject_help': 'Lametna - question / help request',
   'support_subject_bug': 'Lametna - bug report',
   'support_body_hint': 'Write your message here in detail:',
+
+  // ── Guest & account upgrade ──
+  'guest_badge': 'Guest',
+  'guest_limited_title': 'Creating rooms needs a full account',
+  'guest_limited_body': 'As a guest you can join any room with a code and play '
+      'right away. To create your own room, add an email and a password - you '
+      'keep your points and your name, nothing is lost.',
+  'upgrade_title': 'Complete your account',
+  'upgrade_body':
+      'Add an email and a password to your current account. Your points and history stay exactly as they are.',
+  'upgrade_cta': 'Complete sign-up',
+  'upgrade_done': 'Your account is ready 🎉',
+  'later': 'Later',
+  'benefit_create_rooms': 'Create your own rooms and invite anyone',
+  'benefit_leaderboard': 'Keep your points and appear on the leaderboard',
+  'benefit_restore': 'Recover your account on a new phone or after reinstalling',
+  'benefit_devices': 'Sign in from any device with the same account',
 };

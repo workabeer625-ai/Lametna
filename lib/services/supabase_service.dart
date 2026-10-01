@@ -18,6 +18,9 @@ class SupabaseService {
   String? get currentUserId => _client.auth.currentUser?.id;
   bool get isSignedIn => _client.auth.currentUser != null;
 
+  /// هل الجلسة الحالية لضيف (دخول مجهول) لم يربط بريدًا بعد؟
+  bool get isGuestSession => _client.auth.currentUser?.isAnonymous ?? false;
+
   static Future<void> initialize() async {
     if (!Env.isConfigured) {
       throw StateError(Env.missingConfigMessage);
@@ -78,6 +81,37 @@ class SupabaseService {
               'is_guest': true,
             },
           ));
+
+  /// ترقية حساب الضيف: يربط بريدًا وكلمة مرور بنفس الحساب،
+  /// فيحتفظ اللاعب بنقاطه وسجلّه ومعرّفه.
+  Future<void> linkEmailToGuest({
+    required String email,
+    required String password,
+    String? nickname,
+  }) =>
+      _guard(() async {
+        await _client.auth.updateUser(UserAttributes(
+          email: email.trim(),
+          password: password,
+          data: <String, dynamic>{
+            if (nickname != null && nickname.trim().isNotEmpty)
+              'nickname': nickname.trim(),
+            'is_guest': false,
+          },
+        ));
+        // تحديث الجلسة حتى تختفي صفة «مجهول» من الرمز المميّز.
+        try {
+          await _client.auth.refreshSession();
+        } catch (_) {
+          // غير حرج: ستتحدّث الجلسة تلقائيًا لاحقًا.
+        }
+        // إنزال علم is_guest في جدول profiles (يتطلب ترحيل 20240101000015).
+        try {
+          await _client.rpc<void>('link_guest_account');
+        } catch (_) {
+          // الترحيل غير مطبّق بعد — لا يؤثر على عمل التطبيق.
+        }
+      });
 
   Future<void> sendPasswordReset(String email) =>
       _guard(() => _client.auth.resetPasswordForEmail(email.trim()));

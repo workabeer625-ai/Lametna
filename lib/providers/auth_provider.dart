@@ -17,6 +17,16 @@ final Provider<User?> currentUserProvider = Provider<User?>((Ref ref) {
 final Provider<bool> isSignedInProvider =
     Provider<bool>((Ref ref) => ref.watch(currentUserProvider) != null);
 
+/// هل المستخدم الحالي ضيف؟ (دخول مجهول بلا بريد)
+///
+/// نعتمد على حالة المصادقة لا على جدول profiles، حتى تُرفع القيود فورًا
+/// بمجرّد ربط البريد بالحساب.
+final Provider<bool> isGuestProvider = Provider<bool>((Ref ref) {
+  final User? user = ref.watch(currentUserProvider);
+  if (user == null) return false;
+  return user.isAnonymous || (user.email == null || user.email!.isEmpty);
+});
+
 /// ملف المستخدم الحالي — يُعاد تحميله عند تغيّر حالة المصادقة.
 class ProfileController extends AsyncNotifier<Profile?> {
   @override
@@ -67,6 +77,14 @@ class AuthActions {
 
   Future<void> signInAsGuest(String? nickname, String locale) async {
     await _service.signInAsGuest(nickname: nickname, locale: locale);
+    await _ref.read(profileProvider.notifier).refresh();
+  }
+
+  /// ترقية حساب الضيف إلى حساب كامل بالبريد (مع الاحتفاظ بالنقاط).
+  Future<void> upgradeGuest(String email, String password,
+      {String? nickname}) async {
+    await _service.linkEmailToGuest(
+        email: email, password: password, nickname: nickname);
     await _ref.read(profileProvider.notifier).refresh();
   }
 

@@ -12,6 +12,7 @@ import '../../../core/widgets/design_kit.dart';
 import '../../../models/models.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/settings_provider.dart';
+import '../../auth/presentation/upgrade_account_sheet.dart';
 import 'support_sheet.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -123,6 +124,23 @@ class SettingsScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
+
+                    // ── حساب الضيف ──────────────────────────
+                    if (ref.watch(isGuestProvider))
+                      _Group(
+                        title: l10n.t('guest_badge'),
+                        delay: 105,
+                        children: <Widget>[
+                          _Row(
+                            icon: Icons.workspace_premium_rounded,
+                            color: AppColors.green,
+                            title: l10n.t('upgrade_cta'),
+                            subtitle: l10n.t('upgrade_body'),
+                            chevron: true,
+                            onTap: () => showUpgradeAccountSheet(context),
+                          ),
+                        ],
+                      ),
 
                     // ── الدعم ───────────────────────────────
                     _Group(
