@@ -6,6 +6,7 @@
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
+**/android/**/GeneratedPluginRegistrant.java
 *.iml
 .idea/
 .vscode/

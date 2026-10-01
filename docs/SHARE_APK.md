@@ -97,7 +97,11 @@ version: 1.0.1+2      # 1.0.1 = ما يراه المستخدم، +2 = رقم ا�
 
 ## 4. البناء
 
-### الطريقة السهلة (سكربت جاهز)
+### الطريقة السهلة (سكربت جاهز — موصى بها)
+
+> السكربت ينظّف الملفات المولَّدة القديمة قبل البناء، ويتعافى تلقائيًا من علّة
+> `integration_test` المعروفة في بناء الإصدار (انظر [حلّ المشكلات](#10-حل-المشكلات)).
+
 
 ```powershell
 cd F:\lametna
@@ -234,6 +238,8 @@ powershell -ExecutionPolicy Bypass -File tool\build_apk.ps1
 | `Execution failed ... minSdkVersion` | جهاز أقدم من أندرويد 6 | غير مدعوم |
 | البناء بطيء جدًا أول مرة | Gradle يحمّل التبعيات | طبيعي (5–15 دقيقة)، والمرات التالية أسرع |
 | `Unexpected token` عند تشغيل سكربت `.ps1` | PowerShell 5.1 يقرأ الملف بترميز ANSI | السكربت صار إنجليزيًا خالصًا؛ حدّث المستودع (`git pull`). أو نفّذ الأمر يدويًا: `flutter build apk --release --dart-define-from-file=env.json` |
+| `package dev.flutter.plugins.integration_test does not exist` | علّة معروفة في Flutter: حزمة الاختبارات (dev dependency) تتسرّب إلى سجلّ الإضافات في بناء الإصدار | شغّل `tool\build_apk.ps1` — يكتشف الخطأ ويعيد البناء تلقائيًا بتعطيل `integration_test` مؤقتًا ثم يعيد `pubspec.yaml` كما كان. يدويًا: علّق السطرين `integration_test:` و `sdk: flutter` في `dev_dependencies` ثم `flutter pub get` وأعد البناء وأرجعهما بعدها |
+| `Expected to find fonts for (packages/cupertino_icons/CupertinoIcons, MaterialIcons)` | تحذير فقط من مُقلّص الأيقونات؛ إطار Flutter يشير إلى خط Cupertino غير المضمَّن | تجاهله — لا يؤثر على التطبيق إطلاقًا لأن كل أيقوناته Material. لإسكاته أضف `cupertino_icons: ^1.0.8` إلى `dependencies` |
 | `cannot be loaded because running scripts is disabled` | سياسة التنفيذ | شغّله هكذا: `powershell -ExecutionPolicy Bypass -File tool\build_apk.ps1` أو انقر `tool\build_apk.bat` مرّتين |
 
 </div>
