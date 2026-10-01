@@ -25,8 +25,26 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   bool _busy = false;
   bool _obscure = true;
 
+  /// الزر يبقى مضلّلًا (معطّلًا) حتى يكتب المستخدم بريدًا صالحًا وكلمة مرور.
+  bool get _canSubmit =>
+      Validators.isEmail(_email.text.trim()) && _password.text.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    // إعادة بناء الشاشة مع كل حرف حتى يتفعّل الزر فور اكتمال البيانات.
+    _email.addListener(_onChanged);
+    _password.addListener(_onChanged);
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _email.removeListener(_onChanged);
+    _password.removeListener(_onChanged);
     _email.dispose();
     _password.dispose();
     super.dispose();
@@ -161,7 +179,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             icon: Icons.login_rounded,
                             height: 58,
                             loading: _busy,
-                            onTap: _busy ? null : _submit,
+                            onTap: (_busy || !_canSubmit) ? null : _submit,
                           ),
                         ),
                         const SizedBox(height: 16),

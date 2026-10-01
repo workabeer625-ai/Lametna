@@ -35,9 +35,13 @@
 {
   "SUPABASE_URL": "https://YOUR-REF.supabase.co",
   "SUPABASE_ANON_KEY": "YOUR_PUBLIC_ANON_KEY",
-  "APP_ENV": "prod"
+  "APP_ENV": "prod",
+  "APP_DOWNLOAD_URL": "https://github.com/USER/REPO/releases/latest"
 }
 ```
+
+> `APP_DOWNLOAD_URL` اختياري: إن ضبطته يُضاف تلقائيًا إلى **رسالة دعوة الأصدقاء**
+> داخل الغرفة، فيستطيع من لا يملك التطبيق تحميله من الرابط نفسه.
 
 > ⚠️ لو بنيت بدون `--dart-define-from-file=env.json` سيفتح التطبيق على شاشة
 > «إعدادات الخادم غير مضبوطة» عند كل الناس. السكربت في الخطوة 4 يمنع هذا الخطأ.

@@ -8,6 +8,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/error_mapper.dart';
 import '../../../core/extensions/context_ext.dart';
+import '../../../core/network/env.dart';
 import '../../../core/widgets/connection_banner.dart';
 import '../../../core/widgets/design_kit.dart';
 import '../../../core/widgets/state_views.dart';
@@ -104,11 +105,8 @@ class _RoomScreenState extends ConsumerState<RoomScreen> {
                       onBack: _confirmLeave,
                       actions: <Widget>[
                         GlassIconButton(
-                          icon: Icons.copy_all_outlined,
-                          onTap: () async {
-                            await Clipboard.setData(ClipboardData(text: room.code));
-                            if (context.mounted) context.showSnack(l10n.t('copied'));
-                          },
+                          icon: Icons.person_add_alt_1_rounded,
+                          onTap: () => showInviteSheet(context, room.code),
                         ),
                         if (isHost && room.status == RoomStatus.playing) ...<Widget>[
                           const SizedBox(width: 8),
@@ -306,6 +304,14 @@ class WaitingRoomView extends ConsumerWidget {
                           color: AppColors.white,
                         ),
                       ),
+                    ),
+                    const SizedBox(height: 14),
+                    // زر الدعوة: واضح وظاهر حتى يعرف المضيف أن بالإمكان المشاركة.
+                    GradientButton(
+                      label: l10n.t('invite_friends'),
+                      icon: Icons.ios_share_rounded,
+                      height: 50,
+                      onTap: () => showInviteSheet(context, room.code),
                     ),
                     const SizedBox(height: 12),
                     Wrap(
@@ -560,4 +566,136 @@ class _SpectatorView extends StatelessWidget {
       ],
     );
   }
+}
+
+/// نص الدعوة الجاهز للصق في واتساب/تيليجرام.
+String buildInviteText(BuildContext context, String code) {
+  final AppLocalizations l10n = context.l10n;
+  final String body = l10n.t('invite_message').replaceAll('{code}', code);
+  if (!Env.hasDownloadUrl) return body;
+  return '$body\n${l10n.t('invite_download').replaceAll('{url}', Env.downloadUrl)}';
+}
+
+/// ورقة «دعوة أصدقاء»: الرمز بخط كبير + نسخ الدعوة كاملة أو الرمز وحده.
+Future<void> showInviteSheet(BuildContext context, String code) {
+  final AppLocalizations l10n = context.l10n;
+
+  return showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    barrierColor: AppColors.espresso.op(0.45),
+    isScrollControlled: true,
+    builder: (BuildContext sheetContext) {
+      final bool isDark = Theme.of(sheetContext).brightness == Brightness.dark;
+      final Color ink = isDark ? AppColors.inkLight : AppColors.inkDark;
+      final Color muted = isDark ? AppColors.mutedLight : AppColors.mutedDark;
+
+      return ClipRRect(
+        borderRadius:
+            const BorderRadius.vertical(top: Radius.circular(AppTheme.rXl)),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark
+                ? AppColors.espresso.op(0.94)
+                : AppColors.cream.op(0.97),
+            border: Border(
+              top: BorderSide(
+                  color: (isDark ? AppColors.white : AppColors.coffee).op(0.12)),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    width: 46,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      gradient: AppGradients.gold,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    l10n.t('invite_title'),
+                    style: TextStyle(
+                      fontFamily: AppTheme.fontDisplay,
+                      fontSize: 19,
+                      fontWeight: FontWeight.w900,
+                      color: ink,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.t('invite_how'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.6,
+                        fontWeight: FontWeight.w600,
+                        color: muted),
+                  ),
+                  const SizedBox(height: 18),
+                  Container(
+                    width: double.infinity,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                    decoration: BoxDecoration(
+                      gradient: AppGradients.gold,
+                      borderRadius: BorderRadius.circular(AppTheme.rLg),
+                      boxShadow: AppTheme.glow(AppColors.gold,
+                          opacity: 0.3, blur: 24, y: 10),
+                    ),
+                    child: Text(
+                      code,
+                      textAlign: TextAlign.center,
+                      textDirection: TextDirection.ltr,
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontDisplay,
+                        fontSize: 38,
+                        height: 1.1,
+                        letterSpacing: 10,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.espresso,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  GradientButton(
+                    label: l10n.t('copy_invite'),
+                    icon: Icons.content_copy_rounded,
+                    height: 54,
+                    onTap: () async {
+                      // نستعمل سياق الشاشة (لا سياق الورقة) حتى تظهر الرسالة
+                      // بعد إغلاق الورقة بأمان.
+                      final String text = buildInviteText(context, code);
+                      await Clipboard.setData(ClipboardData(text: text));
+                      if (sheetContext.mounted) Navigator.pop(sheetContext);
+                      if (context.mounted) {
+                        context.showSnack(l10n.t('invite_copied'));
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  GhostButton(
+                    label: l10n.t('copy_code'),
+                    icon: Icons.tag_rounded,
+                    height: 50,
+                    onTap: () async {
+                      await Clipboard.setData(ClipboardData(text: code));
+                      if (sheetContext.mounted) Navigator.pop(sheetContext);
+                      if (context.mounted) context.showSnack(l10n.t('copied'));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }

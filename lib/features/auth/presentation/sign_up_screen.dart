@@ -12,6 +12,7 @@ import '../../../core/utils/validators.dart';
 import '../../../core/widgets/design_kit.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/settings_provider.dart';
+import '../../legal/presentation/legal_links.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -29,8 +30,41 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _busy = false;
   bool _acceptedRules = false;
 
+  /// الزر مضلّل حتى تكتمل كل الحقول وتُقبل القوانين.
+  bool get _canSubmit =>
+      Validators.isNickname(_nickname.text) &&
+      Validators.isEmail(_email.text.trim()) &&
+      Validators.isStrongEnoughPassword(_password.text) &&
+      _confirm.text == _password.text &&
+      _acceptedRules;
+
+  @override
+  void initState() {
+    super.initState();
+    for (final TextEditingController c in <TextEditingController>[
+      _nickname,
+      _email,
+      _password,
+      _confirm,
+    ]) {
+      c.addListener(_onChanged);
+    }
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    for (final TextEditingController c in <TextEditingController>[
+      _nickname,
+      _email,
+      _password,
+      _confirm,
+    ]) {
+      c.removeListener(_onChanged);
+    }
     _nickname.dispose();
     _email.dispose();
     _password.dispose();
@@ -239,10 +273,16 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               AppColors.greenLight,
                               AppColors.greenDeep,
                             ],
-                            onTap: _busy ? null : _submit,
+                            onTap: (_busy || !_canSubmit) ? null : _submit,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
+                        // الوثائق القانونية قابلة للقراءة قبل إنشاء الحساب.
+                        FadeInUp(
+                          delay: const Duration(milliseconds: 170),
+                          child: const LegalLinksRow(compact: true),
+                        ),
+                        const SizedBox(height: 10),
                         FadeInUp(
                           delay: const Duration(milliseconds: 190),
                           child: Row(

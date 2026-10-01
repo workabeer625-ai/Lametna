@@ -19,6 +19,13 @@ class Env {
   static const String appEnv =
       String.fromEnvironment('APP_ENV', defaultValue: 'dev');
 
+  /// رابط تحميل التطبيق — يظهر داخل رسالة الدعوة إن ضُبط.
+  /// اضبطه في env.json: "APP_DOWNLOAD_URL": "https://..."
+  static const String downloadUrl =
+      String.fromEnvironment('APP_DOWNLOAD_URL', defaultValue: '');
+
+  static bool get hasDownloadUrl => downloadUrl.startsWith('http');
+
   static bool get isConfigured =>
       supabaseUrl.startsWith('https://') && supabaseAnonKey.length > 20;
 

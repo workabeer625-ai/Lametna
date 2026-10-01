@@ -8,6 +8,7 @@ import '../../../core/extensions/context_ext.dart';
 import '../../../core/widgets/design_kit.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/settings_provider.dart';
+import '../../legal/presentation/legal_links.dart';
 import 'splash_screen.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
@@ -115,6 +116,17 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodySmall,
                         ),
+                        const SizedBox(height: 14),
+                        Divider(
+                          height: 1,
+                          color: (theme.brightness == Brightness.dark
+                                  ? AppColors.white
+                                  : AppColors.coffee)
+                              .op(0.10),
+                        ),
+                        const SizedBox(height: 12),
+                        // الوثائق القانونية متاحة للقراءة قبل أي تسجيل.
+                        const LegalLinksRow(),
                       ],
                     ),
                   ),

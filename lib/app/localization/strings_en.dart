@@ -284,4 +284,21 @@ const Map<String, String> enStrings = <String, String>{
   'truth_like': 'Liked it',
   'truth_dislike': 'Did not like it',
   'truth_likes': 'Likes',
+
+  // ── Legal consent before sign-up ──
+  'legal_read_first': 'Before you start, please read:',
+  'legal_consent':
+      'By continuing you agree to the Terms of Use, the Privacy Policy and the community rules.',
+
+  // ── Invite friends ──
+  'invite_friends': 'Invite friends',
+  'invite_title': 'Invite your friends',
+  'invite_how':
+      'Copy the invite and paste it in WhatsApp or Telegram, or just send the code.',
+  'copy_invite': 'Copy invite message',
+  'copy_code': 'Copy code only',
+  'invite_copied': 'Invite copied - paste it in your chat',
+  'invite_message':
+      'Come play Lametna! 🎲\nRoom code: {code}\nOpen the app -> Join with code -> enter the code.',
+  'invite_download': 'Get the app here: {url}',
 };
